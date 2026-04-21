@@ -1,4 +1,4 @@
-package com.example.filescanner;
+package com.example.filescanner.GUI;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
