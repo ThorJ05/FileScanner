@@ -11,16 +11,16 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        // Makes SceneController able to control the window.
         SceneController.setStage(stage);
 
-        // Start the program in loginFXML instead of helloFXML. NOTICE MAKE LOGIN FXML
         FXMLLoader loader = new FXMLLoader(
-                MainApp.class.getResource("resources/com.example.filescanner.Login.fxml")
+                MainApp.class.getResource("/com/example/filescanner/Login.fxml")
         );
 
         Scene scene = new Scene(loader.load());
-        stage.setTitle("File Scanner");
+        stage.setTitle("FileScanner");
+        stage.setWidth(900);
+        stage.setHeight(600);
         stage.setScene(scene);
         stage.show();
     }

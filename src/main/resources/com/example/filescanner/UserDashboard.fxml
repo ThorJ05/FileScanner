@@ -5,7 +5,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.filescanner.GUI.Controllers.AdminDashboardController"
+            fx:controller="com.example.filescanner.GUI.Controllers.UserDashboardController"
             prefWidth="900" prefHeight="600"
             style="-fx-background-color: #1e1e2e;">
 
@@ -29,26 +29,34 @@
 
     <center>
         <VBox spacing="20" style="-fx-padding: 32;">
-            <Label text="Admin Dashboard"
+            <Label text="Welcome back"
                    style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;"/>
-            <Label text="Manage users, profiles, and system settings"
+            <Label text="Overview of your scanning activity"
                    style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;"/>
 
             <HBox spacing="16">
                 <VBox style="-fx-background-color: #313244; -fx-padding: 20;
                              -fx-background-radius: 8;" prefWidth="180">
-                    <Label text="Total Users"
+                    <Label text="Documents Today"
                            style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <Label fx:id="userCountLabel" text="0"
+                    <Label fx:id="docCountLabel" text="0"
                            style="-fx-text-fill: #cdd6f4; -fx-font-size: 28px;
                                   -fx-font-weight: bold;"/>
                 </VBox>
                 <VBox style="-fx-background-color: #313244; -fx-padding: 20;
                              -fx-background-radius: 8;" prefWidth="180">
-                    <Label text="Total Profiles"
+                    <Label text="Files Scanned"
                            style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <Label fx:id="profileCountLabel" text="0"
+                    <Label fx:id="fileCountLabel" text="0"
                            style="-fx-text-fill: #cdd6f4; -fx-font-size: 28px;
+                                  -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox style="-fx-background-color: #313244; -fx-padding: 20;
+                             -fx-background-radius: 8;" prefWidth="180">
+                    <Label text="Active Profile"
+                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                    <Label fx:id="activeProfileLabel" text="None"
+                           style="-fx-text-fill: #89b4fa; -fx-font-size: 18px;
                                   -fx-font-weight: bold;"/>
                 </VBox>
             </HBox>
