@@ -16,7 +16,7 @@ public class MainApp extends Application {
 
         // Start the program in loginFXML instead of helloFXML. NOTICE MAKE LOGIN FXML
         FXMLLoader loader = new FXMLLoader(
-                MainApp.class.getResource("/com/example/filescanner/GUI/Views/login.fxml")
+                MainApp.class.getResource("resources/com.example.filescanner.Login.fxml")
         );
 
         Scene scene = new Scene(loader.load());
