@@ -22,7 +22,7 @@ public class AdminDashboardController {
     @FXML
     private void onUsers() {
         // TODO: navigate to user management view
-    } //yes
+    }
 
     @FXML
     private void onProfiles() {

@@ -1,55 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.filescanner.GUI.Controllers.LoginController"
-      alignment="CENTER" spacing="16"
-      style="-fx-background-color: #1e1e2e;">
+<VBox alignment="CENTER" spacing="16" style="-fx-background-color: #1e1e2e;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.filescanner.GUI.Controllers.LoginController">
 
-    <padding><Insets top="80" right="120" bottom="80" left="120"/></padding>
+    <padding><Insets bottom="80" left="120" right="120" top="80" /></padding>
 
-    <Label text="FileScanner" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;"/>
-    <Label text="Sign in to your account" style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;"/>
+    <ImageView fitHeight="68.0" fitWidth="277.0" preserveRatio="true">
+        <image>
+            <Image url="@Assets/LogoBlue2H.png" />
+        </image>
+    </ImageView>
 
-    <VBox spacing="6" maxWidth="320">
-        <Label text="Username" style="-fx-text-fill: #cdd6f4; -fx-font-size: 13px;"/>
-        <TextField fx:id="usernameField" promptText="Enter username"
-                   style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                          -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                          -fx-border-radius: 6; -fx-background-radius: 6;
-                          -fx-padding: 10; -fx-font-size: 13px;"/>
+    <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;" text="FileScanner" />
+    <Label style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;" text="Sign in to your account" />
+
+    <VBox maxWidth="320" spacing="6">
+        <Label style="-fx-text-fill: #cdd6f4; -fx-font-size: 13px;" text="Username" />
+        <TextField fx:id="usernameField" promptText="Enter username" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;                           -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;                           -fx-border-radius: 6; -fx-background-radius: 6;                           -fx-padding: 10; -fx-font-size: 13px;" />
     </VBox>
 
-    <VBox spacing="6" maxWidth="320">
-        <Label text="Password" style="-fx-text-fill: #cdd6f4; -fx-font-size: 13px;"/>
-        <PasswordField fx:id="passwordField" promptText="Enter password"
-                       style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                              -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                              -fx-border-radius: 6; -fx-background-radius: 6;
-                              -fx-padding: 10; -fx-font-size: 13px;"/>
+    <VBox maxWidth="320" spacing="6">
+        <Label style="-fx-text-fill: #cdd6f4; -fx-font-size: 13px;" text="Password" />
+        <PasswordField fx:id="passwordField" promptText="Enter password" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;                               -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;                               -fx-border-radius: 6; -fx-background-radius: 6;                               -fx-padding: 10; -fx-font-size: 13px;" />
     </VBox>
 
-    <Label fx:id="errorLabel" text=""
-           style="-fx-text-fill: #f38ba8; -fx-font-size: 12px;"/>
+    <Label fx:id="errorLabel" style="-fx-text-fill: #f38ba8; -fx-font-size: 12px;" text="" />
 
-    <Button text="Sign in" onAction="#onLoginClick" maxWidth="320"
-            style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;
-                   -fx-font-weight: bold; -fx-font-size: 14px;
-                   -fx-background-radius: 6; -fx-padding: 10;
-                   -fx-cursor: hand;"/>
+    <Button maxWidth="320" onAction="#onLoginClick" style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;                    -fx-font-weight: bold; -fx-font-size: 14px;                    -fx-background-radius: 6; -fx-padding: 10;                    -fx-cursor: hand;" text="Sign in" />
 
     <!-- Dev hint box -->
-    <HBox maxWidth="320" spacing="8" alignment="CENTER_LEFT"
-          style="-fx-padding: 8 12; -fx-background-color: #181825;
-             -fx-background-radius: 6; -fx-border-color: #313244;
-             -fx-border-radius: 6;">
-        <Label text="Dev:"
-               style="-fx-text-fill: #585b70; -fx-font-size: 11px;"/>
-        <Label text="user / user123"
-               style="-fx-text-fill: #6c7086; -fx-font-size: 11px;"/>
+    <HBox alignment="CENTER_LEFT" maxWidth="320" spacing="8" style="-fx-padding: 8 12; -fx-background-color: #181825;              -fx-background-radius: 6; -fx-border-color: #313244;              -fx-border-radius: 6;">
+        <Label style="-fx-text-fill: #585b70; -fx-font-size: 11px;" text="Dev:" />
+        <Label style="-fx-text-fill: #6c7086; -fx-font-size: 11px;" text="user / user123" />
     </HBox>
 
 </VBox>
