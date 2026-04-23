@@ -23,6 +23,7 @@ public abstract class User {
     public String getId()                       {return id;}
     public String getFirstName()                {return firstName;}
     public String getLastName()                 {return lastName;}
+    public String getEmail()                    {return email;}
     public String getRole()                     {return role.toString();}
 
     // Setters
@@ -32,6 +33,7 @@ public abstract class User {
     public void setPassword(String pw)          {this.password = pw;}
 
     public boolean checkPassword(String pw)     {return this.password != null && this.password.equals(pw);}
+
 
 
 }
