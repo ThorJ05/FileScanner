@@ -12,6 +12,7 @@ public class SceneController {
     private static Stage mainStage;
 
     public static void setStage(Stage stage) {
+
         mainStage = stage;
     }
 
