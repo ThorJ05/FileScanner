@@ -29,7 +29,7 @@
 
     <center>
         <VBox spacing="20" style="-fx-padding: 32;">
-            <Label text="Welcome back"
+            <Label fx:id="welcomeLabel" text="Welcome back!"
                    style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;"/>
             <Label text="Overview of your scanning activity"
                    style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;"/>

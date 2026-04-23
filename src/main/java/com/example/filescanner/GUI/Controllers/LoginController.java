@@ -1,7 +1,7 @@
 package com.example.filescanner.GUI.Controllers;
 
 import com.example.filescanner.BEE.User;
-import com.example.filescanner.DAL.UserRepository;
+import com.example.filescanner.BLL.LoginManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -13,20 +13,26 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
 
-    private final UserRepository userRepository = new UserRepository();
+    private final LoginManager loginManager = new LoginManager();
 
     @FXML
     private void onLoginClick() {
-        String username = usernameField.getText();
+        String username = usernameField.getText().trim();
         String password = passwordField.getText();
 
-        User user = userRepository.login(username, password);
+        if (username.isEmpty() || password.isEmpty()) {
+            errorLabel.setText("Please enter both username and password");
+            return;
+        }
+
+        User user = loginManager.attemptLogin(username, password);
 
         if (user == null) {
             errorLabel.setText("Incorrect username or password");
             return;
         }
 
+        SceneController.setCurrentUser(user);
         SceneController.switchTo("UserDashboard.fxml");
     }
 }

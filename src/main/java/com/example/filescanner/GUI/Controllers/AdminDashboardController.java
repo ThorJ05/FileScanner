@@ -10,14 +10,16 @@ public class AdminDashboardController {
 
     @FXML
     public void initialize() {
+        loadStats();
+    }
+
+    private void loadStats() {
         userCountLabel.setText("0");
         profileCountLabel.setText("0");
     }
 
     @FXML
-    private void onDashboard() {
-        // Already on dashboard
-    }
+    private void onDashboard() {}
 
     @FXML
     private void onUsers() {
@@ -36,6 +38,7 @@ public class AdminDashboardController {
 
     @FXML
     private void onLogout() {
+        SceneController.setCurrentUser(null);
         SceneController.switchTo("Login.fxml");
     }
 }
