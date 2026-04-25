@@ -10,7 +10,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="16" style="-fx-background-color: #1e1e2e;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.filescanner.GUI.Controllers.LoginController">
+<VBox alignment="CENTER" spacing="16" style="-fx-background-color: #1e1e2e;
+" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.filescanner.GUI.Controllers.LoginController">
 
     <padding><Insets bottom="80" left="120" right="120" top="80" /></padding>
 
@@ -20,7 +22,7 @@
         </image>
     </ImageView>
 
-    <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;" text="FileScanner" />
+    <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;" text="TIFF LOGIC" />
     <Label style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;" text="Sign in to your account" />
 
     <VBox maxWidth="320" spacing="6">

@@ -18,7 +18,7 @@ public class MainApp extends Application {
         );
 
         Scene scene = new Scene(loader.load());
-        stage.setTitle("FileScanner");
+        stage.setTitle("Tiff Logic");
         stage.setWidth(900);
         stage.setHeight(600);
         stage.setScene(scene);

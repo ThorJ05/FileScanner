@@ -33,6 +33,11 @@ public class LoginController {
         }
 
         SceneController.setCurrentUser(user);
-        SceneController.switchTo("UserDashboard.fxml");
+
+        if (user.getRole().equalsIgnoreCase("ADMIN")) {
+            SceneController.switchTo("AdminDashboard.fxml");
+        } else {
+            SceneController.switchTo("UserDashboard.fxml");
+        }
     }
 }

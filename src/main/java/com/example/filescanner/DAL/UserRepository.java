@@ -4,15 +4,39 @@ import com.example.filescanner.BEE.BasicUser;
 import com.example.filescanner.BEE.User;
 import com.example.filescanner.BEE.UserRole;
 
-public class UserRepository {
+import java.util.ArrayList;
+import java.util.List;
 
+public class UserRepository implements IUserRepository {
+
+    private final List<User> users = new ArrayList<>();
+
+    public UserRepository() {
+        users.add(new BasicUser("1", "admin", "User", "admin@test.com", "admin123", UserRole.ADMIN));
+        users.add(new BasicUser("2", "user", "User", "user@test.com", "user123", UserRole.USER));
+    }
+
+    @Override
     public User login(String username, String password) {
-        if (username.equals("admin") && password.equals("admin123")) {
-            return new BasicUser("1", "Admin", "User", "admin@test.com", password, UserRole.ADMIN);
-        }
-        if (username.equals("user") && password.equals("user123")) {
-            return new BasicUser("2", "Regular", "User", "user@test.com", password, UserRole.USER);
-        }
-        return null;
+        return users.stream()
+                .filter(u -> u.getFirstName().equalsIgnoreCase(username))
+                .filter(u -> u.checkPassword(password))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public void createUser(User user) {
+        users.add(user);
+    }
+
+    @Override
+    public void deleteUser(String userId) {
+        users.removeIf(u -> u.getId().equals(userId));
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users);
     }
 }
