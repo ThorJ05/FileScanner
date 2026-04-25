@@ -7,6 +7,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+import java.util.Optional;
+
 public class LoginController {
 
     @FXML private TextField usernameField;
@@ -25,13 +27,14 @@ public class LoginController {
             return;
         }
 
-        User user = loginManager.attemptLogin(username, password);
+        Optional<User> userOpt = loginManager.attemptLogin(username, password);
 
-        if (user == null) {
+        if (userOpt.isEmpty()) {
             errorLabel.setText("Incorrect username or password");
             return;
         }
 
+        User user = userOpt.get();
         SceneController.setCurrentUser(user);
 
         if (user.getRole().equalsIgnoreCase("ADMIN")) {

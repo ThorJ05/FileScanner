@@ -6,6 +6,7 @@ import com.example.filescanner.BEE.UserRole;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserRepository implements IUserRepository {
 
@@ -17,13 +18,13 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public User login(String username, String password) {
+    public Optional<User> login(String username, String password) {
         return users.stream()
                 .filter(u -> u.getFirstName().equalsIgnoreCase(username))
                 .filter(u -> u.checkPassword(password))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
+
 
     @Override
     public void createUser(User user) {
