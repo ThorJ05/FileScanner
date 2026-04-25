@@ -14,6 +14,7 @@ public class AdminDashboardController {
     @FXML private ListView<String> userListView;
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
+    @FXML private TextField companyField;
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
     @FXML private ComboBox<String> roleComboBox;
@@ -25,7 +26,7 @@ public class AdminDashboardController {
     @FXML
     public void initialize() {
         roleComboBox.getItems().addAll("USER", "ADMIN");
-        roleComboBox.setValue("USER");
+        roleComboBox.getSelectionModel().selectFirst();
         loadUsers();
     }
 
@@ -43,6 +44,7 @@ public class AdminDashboardController {
     private void onCreateUser() {
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();
+        String company = companyField.getText().trim();
         String email = emailField.getText().trim();
         String password = passwordField.getText();
         String roleStr = roleComboBox.getValue();
@@ -78,9 +80,10 @@ public class AdminDashboardController {
     private void clearFields() {
         firstNameField.clear();
         lastNameField.clear();
+        companyField.clear();
         emailField.clear();
         passwordField.clear();
-        roleComboBox.setValue("USER");
+        roleComboBox.getSelectionModel().selectFirst();
     }
 
     @FXML
