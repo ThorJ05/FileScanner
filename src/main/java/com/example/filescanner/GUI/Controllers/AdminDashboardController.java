@@ -5,7 +5,10 @@ import com.example.filescanner.BEE.UserRole;
 import com.example.filescanner.BLL.UserManager;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+
 import java.util.List;
 
 public class AdminDashboardController {
@@ -19,6 +22,7 @@ public class AdminDashboardController {
     @FXML private PasswordField passwordField;
     @FXML private ComboBox<String> roleComboBox;
     @FXML private Label statusLabel;
+    @FXML private Button createUserButton;
 
     private final UserManager userManager = new UserManager();
     private List<User> currentUsers;
@@ -28,11 +32,88 @@ public class AdminDashboardController {
         roleComboBox.getItems().addAll("USER", "ADMIN");
         roleComboBox.getSelectionModel().selectFirst();
         loadUsers();
+
+        // Wait until the Scene is attached before adding keyboard shortcuts
+        userListView.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                setupKeyboardShortcuts(newScene);
+                setupArrowNavigation();
+            }
+        });
+    }
+
+    private void setupKeyboardShortcuts(Scene scene) {
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ESCAPE -> onLogout();
+                case DELETE -> onDeleteUser();
+                case DIGIT1 -> onDashboard();
+            }
+        });
+    }
+
+    private void setupArrowNavigation() {
+
+        firstNameField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN) lastNameField.requestFocus();
+        });
+
+        lastNameField.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case UP -> firstNameField.requestFocus();
+                case DOWN -> companyField.requestFocus();
+            }
+        });
+
+        companyField.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case UP -> lastNameField.requestFocus();
+                case DOWN -> emailField.requestFocus();
+            }
+        });
+
+        emailField.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case UP -> companyField.requestFocus();
+                case DOWN -> passwordField.requestFocus();
+            }
+        });
+
+        passwordField.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case UP -> emailField.requestFocus();
+                case DOWN -> roleComboBox.requestFocus();
+            }
+        });
+
+        roleComboBox.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case UP -> passwordField.requestFocus();
+                case DOWN -> firstNameField.requestFocus(); // loop back to top
+            }
+        });
+
+        roleComboBox.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case ENTER -> roleComboBox.show(); // open dropdown only on ENTER
+                case UP -> passwordField.requestFocus(); // move up
+                case DOWN -> firstNameField.requestFocus(); // loop back to top
+            }
+        });
+
+        roleComboBox.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case ENTER -> roleComboBox.show();
+                case UP -> passwordField.requestFocus();
+                case DOWN -> createUserButton.requestFocus();
+            }
+        });
     }
 
     private void loadUsers() {
         currentUsers = userManager.getAllUsers();
         userCountLabel.setText(String.valueOf(currentUsers.size()));
+
         userListView.setItems(FXCollections.observableArrayList(
                 currentUsers.stream()
                         .map(u -> u.getFirstName() + " " + u.getLastName() + " (" + u.getRole() + ")")
@@ -87,7 +168,9 @@ public class AdminDashboardController {
     }
 
     @FXML
-    private void onDashboard() {}
+    private void onDashboard() {
+        // Future dashboard navigation
+    }
 
     @FXML
     private void onLogout() {

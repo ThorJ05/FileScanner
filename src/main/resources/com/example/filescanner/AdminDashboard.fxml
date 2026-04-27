@@ -133,11 +133,13 @@
                               promptText="Select role"/>
                 </VBox>
 
-                <Button text="Create User" onAction="#onCreateUser"
+                <Button fx:id="createUserButton"
+                        text="Create User"
+                        onAction="#onCreateUser"
                         maxWidth="Infinity"
                         style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;
-                               -fx-font-weight: bold; -fx-padding: 10;
-                               -fx-background-radius: 6; -fx-cursor: hand;"/>
+               -fx-font-weight: bold; -fx-padding: 10;
+               -fx-background-radius: 6; -fx-cursor: hand;"/>
 
                 <Label fx:id="statusLabel" text=""
                        style="-fx-text-fill: #a6e3a1; -fx-font-size: 12px;"/>

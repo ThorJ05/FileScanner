@@ -32,3 +32,24 @@
 .combo-box .arrow {
     -fx-background-color: #cdd6f4;
 }
+
+.button:focused {
+    -fx-border-color: #89b4fa;
+    -fx-border-width: 2;
+    -fx-background-color: #45475a;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #89b4fa;
+    -fx-border-width: 2;
+}
+
+.list-cell:focused {
+    -fx-background-color: #89b4fa;
+    -fx-text-fill: #1e1e2e;
+}
+
+.combo-box:focused {
+    -fx-border-color: #89b4fa;
+    -fx-border-width: 2;
+}
