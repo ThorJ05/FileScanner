@@ -4,40 +4,104 @@ import com.example.filescanner.BEE.BasicUser;
 import com.example.filescanner.BEE.User;
 import com.example.filescanner.BEE.UserRole;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class UserRepository implements IUserRepository {
 
-    private final List<User> users = new ArrayList<>();
-
-    public UserRepository() {
-        users.add(new BasicUser("1", "admin", "User", "admin@test.com", "admin123", UserRole.ADMIN));
-        users.add(new BasicUser("2", "user", "User", "user@test.com", "user123", UserRole.USER));
-    }
-
     @Override
-    public Optional<User> login(String username, String password) {
-        return users.stream()
-                .filter(u -> u.getFirstName().equalsIgnoreCase(username))
-                .filter(u -> u.checkPassword(password))
-                .findFirst();
-    }
+    public Optional<User> findByUsername(String username) {
+        String sql = "SELECT * FROM Users WHERE UserName = ?";
 
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                User user = new BasicUser(
+                        rs.getString("UserId"),          // ✔ MATCHER DB
+                        rs.getString("UserName"),        // ✔ username → firstName i User
+                        rs.getString("LastName"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),    // ✔ passwordHash → password i User
+                        UserRole.valueOf(rs.getString("Role"))
+                );
+                return Optional.of(user);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+    }
 
     @Override
     public void createUser(User user) {
-        users.add(user);
+        String sql = "INSERT INTO Users (UserName, PasswordHash, Role, FirstName, LastName, Email) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, user.getFirstName());   // UserName
+            stmt.setString(2, user.getPassword());    // PasswordHash
+            stmt.setString(3, user.getRole());
+            stmt.setString(4, user.getFirstName());
+            stmt.setString(5, user.getLastName());
+            stmt.setString(6, user.getEmail());
+
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteUser(String userId) {
-        users.removeIf(u -> u.getId().equals(userId));
+        String sql = "DELETE FROM Users WHERE UserId = ?";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, userId);
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public List<User> getAllUsers() {
-        return new ArrayList<>(users);
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new BasicUser(
+                        rs.getString("UserId"),
+                        rs.getString("UserName"),
+                        rs.getString("LastName"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),
+                        UserRole.valueOf(rs.getString("Role"))
+                ));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }

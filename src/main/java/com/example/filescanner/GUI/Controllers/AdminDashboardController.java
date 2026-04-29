@@ -123,25 +123,27 @@ public class AdminDashboardController {
 
     @FXML
     private void onCreateUser() {
+        String username = firstNameField.getText().trim();  // username
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();
-        String company = companyField.getText().trim();
         String email = emailField.getText().trim();
         String password = passwordField.getText();
         String roleStr = roleComboBox.getValue();
 
-        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
+        if (username.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
             statusLabel.setText("Please fill in all fields.");
             return;
         }
 
         UserRole role = roleStr.equals("ADMIN") ? UserRole.ADMIN : UserRole.USER;
-        userManager.createUser(firstName, lastName, email, password, role);
+
+        userManager.createUser(username, firstName, lastName, email, password, role);
 
         statusLabel.setText("User created successfully.");
         clearFields();
         loadUsers();
     }
+
 
     @FXML
     private void onDeleteUser() {

@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IUserRepository {
-    Optional<User> login(String username, String password);
+
+    Optional<User> findByUsername(String username);
+
     void createUser(User user);
+
     void deleteUser(String userId);
+
     List<User> getAllUsers();
 }

@@ -10,6 +10,7 @@ public class LoginManager {
     private final UserRepository userRepository = new UserRepository();
 
     public Optional<User> attemptLogin(String username, String password) {
-        return userRepository.login(username, password);
+        return userRepository.findByUsername(username)
+                .filter(u -> u.checkPassword(password));
     }
 }

@@ -25,7 +25,7 @@ public abstract class User {
     public String getLastName()                 {return lastName;}
     public String getEmail()                    {return email;}
     public String getRole()                     {return role.toString();}
-
+    public String getPassword()                 {return  password;}
     // Setters
     public void setFirstName(String fn)         {this.firstName = fn;}
     public void setLastName(String ln)          {this.lastName = ln;}
