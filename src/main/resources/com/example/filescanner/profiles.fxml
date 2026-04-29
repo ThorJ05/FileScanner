@@ -19,9 +19,12 @@
             <TableView fx:id="profileTable"
                        style="-fx-background-color: #313244; -fx-border-color: #45475a;">
                 <columns>
-                    <TableColumn fx:id="colName" text="Navn" prefWidth="150"/>
+                    <TableColumn fx:id="colName" text="Navn" prefWidth="120"/>
                     <TableColumn fx:id="colRotation" text="Rotation" prefWidth="80"/>
                     <TableColumn fx:id="colFormat" text="Format" prefWidth="80"/>
+                    <TableColumn fx:id="colBrightness" text="Brightness" prefWidth="100"/>
+                    <TableColumn fx:id="colContrast" text="Contrast" prefWidth="100"/>
+                    <TableColumn fx:id="colSplit" text="Split" prefWidth="80"/>
                 </columns>
             </TableView>
         </VBox>

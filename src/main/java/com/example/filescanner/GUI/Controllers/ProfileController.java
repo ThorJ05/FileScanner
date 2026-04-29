@@ -3,6 +3,7 @@ package com.example.filescanner.GUI.Controllers;
 import com.example.filescanner.BEE.Profile;
 import com.example.filescanner.BLL.ProfileManager;
 import com.example.filescanner.DAL.ProfileRepository;
+import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -12,6 +13,9 @@ public class ProfileController {
     @FXML private TableColumn<Profile, String> colName;
     @FXML private TableColumn<Profile, Integer> colRotation;
     @FXML private TableColumn<Profile, String> colFormat;
+    @FXML private TableColumn<Profile, Float> colBrightness;
+    @FXML private TableColumn<Profile, Float> colContrast;
+    @FXML private TableColumn<Profile, Boolean> colSplit;
 
     @FXML private TextField txtName;
     @FXML private Slider sliderRotation;
@@ -26,23 +30,17 @@ public class ProfileController {
     @FXML
     public void initialize() {
 
-        // TableView bindings
-        colName.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(c.getValue().getName()));
+        colName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getName()));
+        colRotation.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getRotation()).asObject());
+        colFormat.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getExportFormat()));
+        colBrightness.setCellValueFactory(c -> new SimpleFloatProperty(c.getValue().getBrightness()).asObject());
+        colContrast.setCellValueFactory(c -> new SimpleFloatProperty(c.getValue().getContrast()).asObject());
+        colSplit.setCellValueFactory(c -> new SimpleBooleanProperty(c.getValue().isSplitOnBarcode()).asObject());
 
-        colRotation.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleIntegerProperty(c.getValue().getRotation()).asObject());
-
-        colFormat.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(c.getValue().getExportFormat()));
-
-        // ComboBox values
         comboFormat.getItems().addAll("PNG", "JPG", "TIFF");
 
-        // Load profiles
         loadProfiles();
 
-        // When selecting a profile in the table
         profileTable.getSelectionModel().selectedItemProperty().addListener((obs, old, p) -> {
             if (p != null) loadProfileIntoFields(p);
         });
@@ -64,9 +62,14 @@ public class ProfileController {
 
     @FXML
     public void createProfile() {
+        if (txtName.getText().isEmpty()) return;
+
+        // Tving rotation til 0/90/180/270
+        int rotation = ((int) sliderRotation.getValue() / 90) * 90;
+
         Profile p = new Profile();
         p.setName(txtName.getText());
-        p.setRotation((int) sliderRotation.getValue());
+        p.setRotation(rotation);
         p.setBrightness((float) sliderBrightness.getValue());
         p.setContrast((float) sliderContrast.getValue());
         p.setSplitOnBarcode(chkSplit.isSelected());
@@ -81,8 +84,10 @@ public class ProfileController {
     public void saveProfile() {
         if (selected == null) return;
 
+        int rotation = ((int) sliderRotation.getValue() / 90) * 90;
+
         selected.setName(txtName.getText());
-        selected.setRotation((int) sliderRotation.getValue());
+        selected.setRotation(rotation);
         selected.setBrightness((float) sliderBrightness.getValue());
         selected.setContrast((float) sliderContrast.getValue());
         selected.setSplitOnBarcode(chkSplit.isSelected());
