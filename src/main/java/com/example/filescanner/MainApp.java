@@ -1,6 +1,8 @@
 package com.example.filescanner;
 
+import com.example.filescanner.BLL.UserManager;
 import com.example.filescanner.GUI.Controllers.SceneController;
+import com.example.filescanner.Util.PasswordUtil;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -10,6 +12,9 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+
+        // ONE-TIME migration — delete this line after running the app once!
+        new UserManager().rehashAllPlainTextPasswords();
 
         SceneController.setStage(stage);
 

@@ -23,7 +23,7 @@ public class UserRepository implements IUserRepository {
 
             if (rs.next()) {
                 User user = new BasicUser(
-                        rs.getString("UserId"),
+                        String.valueOf(rs.getInt("UserId")),  // fix: int to String
                         rs.getString("UserName"),
                         rs.getString("LastName"),
                         rs.getString("Email"),
@@ -40,7 +40,6 @@ public class UserRepository implements IUserRepository {
         return Optional.empty();
     }
 
-    // ⭐ NEW: Check if email already exists
     public boolean emailExists(String email) {
         String sql = "SELECT COUNT(*) FROM Users WHERE Email = ?";
 
@@ -63,20 +62,34 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public void createUser(User user) {
-        String sql = "INSERT INTO Users (UserId, UserName, PasswordHash, Role, FirstName, LastName, Email) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (UserName, PasswordHash, Role, FirstName, LastName, Email) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setString(1, user.getFirstName());
+            stmt.setString(2, user.getPassword());
+            stmt.setString(3, user.getRole().toString());
+            stmt.setString(4, user.getFirstName());
+            stmt.setString(5, user.getLastName());
+            stmt.setString(6, user.getEmail());
+
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updatePassword(String userId, String hashedPassword) {
+        String sql = "UPDATE Users SET PasswordHash = ? WHERE UserId = ?";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, user.getId());
-            stmt.setString(2, user.getFirstName());   // UserName
-            stmt.setString(3, user.getPassword());    // PasswordHash
-            stmt.setString(4, user.getRole().toString());
-            stmt.setString(5, user.getFirstName());
-            stmt.setString(6, user.getLastName());
-            stmt.setString(7, user.getEmail());
-
+            stmt.setString(1, hashedPassword);
+            stmt.setString(2, userId);
             stmt.executeUpdate();
 
         } catch (Exception e) {
@@ -110,7 +123,7 @@ public class UserRepository implements IUserRepository {
 
             while (rs.next()) {
                 list.add(new BasicUser(
-                        rs.getString("UserId"),
+                        String.valueOf(rs.getInt("UserId")),  // fix: int to String
                         rs.getString("UserName"),
                         rs.getString("LastName"),
                         rs.getString("Email"),
