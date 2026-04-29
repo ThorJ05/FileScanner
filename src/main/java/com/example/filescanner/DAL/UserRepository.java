@@ -68,8 +68,8 @@ public class UserRepository implements IUserRepository {
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, user.getFirstName());
-            stmt.setString(2, user.getPassword());
-            stmt.setString(3, user.getRole().toString());
+            stmt.setString(2, user.getPasswordHash());
+            stmt.setString(3, user.getRole());
             stmt.setString(4, user.getFirstName());
             stmt.setString(5, user.getLastName());
             stmt.setString(6, user.getEmail());

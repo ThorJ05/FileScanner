@@ -11,7 +11,12 @@ import java.util.UUID;
 
 public class UserManager {
 
-    private final UserRepository repo = new UserRepository();
+    private final com.example.filescanner.DAL.IUserRepository repo;
+
+    public UserManager() {
+        this.repo = new com.example.filescanner.DAL.UserRepository();
+    }
+
 
     public boolean emailExists(String email) {
         return repo.emailExists(email);
@@ -36,7 +41,7 @@ public class UserManager {
     public void rehashAllPlainTextPasswords() {
         List<User> users = repo.getAllUsers();
         for (User u : users) {
-            String pw = u.getPassword();
+            String pw = u.getPasswordHash();
             if (pw != null && !pw.startsWith("$2a$")) {
                 String hashed = PasswordUtil.hashPassword(pw);
                 repo.updatePassword(u.getId(), hashed);

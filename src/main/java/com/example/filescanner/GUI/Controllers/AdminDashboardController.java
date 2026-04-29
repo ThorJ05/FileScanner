@@ -180,8 +180,14 @@ public class AdminDashboardController {
     }
 
     @FXML
+    private void onBack() {
+        SceneController.goBack();
+    }
+
+    @FXML
     private void onLogout() {
         SceneController.setCurrentUser(null);
+        SceneController.clearHistory();
         SceneController.switchTo("Login.fxml");
     }
 }

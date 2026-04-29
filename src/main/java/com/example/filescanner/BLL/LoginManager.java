@@ -8,7 +8,12 @@ import java.util.Optional;
 
 public class LoginManager {
 
-    private final UserRepository userRepository = new UserRepository();
+    private final com.example.filescanner.DAL.IUserRepository userRepository;
+
+    public LoginManager() {
+        this.userRepository = new com.example.filescanner.DAL.UserRepository();
+    }
+
 
     public Optional<User> attemptLogin(String username, String password) {
         Optional<User> found = userRepository.findByUsername(username);
@@ -19,11 +24,7 @@ public class LoginManager {
         }
 
         User u = found.get();
-        System.out.println("DEBUG: Found user: " + u.getFirstName());
-        System.out.println("DEBUG: Stored hash: " + u.getPassword());
-        System.out.println("DEBUG: Password entered: " + password);
         boolean match = u.checkPassword(password);
-        System.out.println("DEBUG: Password match: " + match);
 
         return match ? Optional.of(u) : Optional.empty();
     }

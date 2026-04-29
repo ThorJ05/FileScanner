@@ -21,12 +21,15 @@ public abstract class User {
     }
 
     // Getters
-    public String getId()                       { return id; }
-    public String getFirstName()                { return firstName; }
-    public String getLastName()                 { return lastName; }
-    public String getEmail()                    { return email; }
-    public String getRole()                     { return role.toString(); }
-    public String getPassword()                 { return password; }
+    public String getId() { return id; }
+    public String getFirstName() { return firstName; }
+    public String getLastName() { return lastName; }
+    public String getEmail() { return email; }
+    public String getRole() { return role.toString(); }
+    // Returns the stored password hash. Prefer using PasswordUtil for checks.
+    public String getPasswordHash() { return password; }
+    // Backwards-compatible username accessor (preserves existing behaviour)
+    public String getUsername() { return firstName; }
 
     // Setters
     public void setFirstName(String fn)         { this.firstName = fn; }

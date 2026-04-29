@@ -13,4 +13,9 @@ public interface IUserRepository {
     void deleteUser(String userId);
 
     List<User> getAllUsers();
+
+    // Added for user management operations
+    boolean emailExists(String email);
+
+    void updatePassword(String userId, String hashedPassword);
 }

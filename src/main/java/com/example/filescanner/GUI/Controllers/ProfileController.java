@@ -106,6 +106,11 @@ public class ProfileController {
         clearFields();
     }
 
+    @FXML
+    private void onBack() {
+        SceneController.goBack();
+    }
+
     private void clearFields() {
         txtName.clear();
         sliderRotation.setValue(0);

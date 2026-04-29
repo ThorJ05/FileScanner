@@ -20,6 +20,7 @@
                            -fx-alignment: center-left; -fx-padding: 10;
                            -fx-background-radius: 6; -fx-cursor: hand;"/>
             <Region VBox.vgrow="ALWAYS"/>
+
             <Button text="Logout" maxWidth="Infinity" onAction="#onLogout"
                     style="-fx-background-color: transparent; -fx-text-fill: #f38ba8;
                            -fx-alignment: center-left; -fx-padding: 10;
