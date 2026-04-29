@@ -1,6 +1,6 @@
 package com.example.filescanner.BEE;
 
-import org.mindrot.jbcrypt.BCrypt;
+import com.example.filescanner.Util.PasswordUtil;
 
 public abstract class User {
 
@@ -34,6 +34,6 @@ public abstract class User {
     public void setEmail(String em)             { this.email = em; }
     public void setPassword(String pw)          { this.password = pw; }
 
-    // Use BCrypt to compare plain text input against the stored hash
-    public boolean checkPassword(String pw)     { return pw != null && BCrypt.checkpw(pw, this.password); }
+    // Delegates to PasswordUtil for verification
+    public boolean checkPassword(String pw)     { return PasswordUtil.checkPassword(pw, this.password); }
 }
