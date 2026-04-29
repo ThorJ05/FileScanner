@@ -86,12 +86,26 @@ public class AdminDashboardController {
             }
         });
 
-        // ⭐ FINAL, CLEANED ComboBox navigation
         roleComboBox.setOnKeyPressed(e -> {
             switch (e.getCode()) {
-                case ENTER -> roleComboBox.show();          // open dropdown only on ENTER
-                case UP -> passwordField.requestFocus();    // move up
-                case DOWN -> createUserButton.requestFocus(); // move down to Create button
+                case UP -> passwordField.requestFocus();
+                case DOWN -> firstNameField.requestFocus();
+            }
+        });
+
+        roleComboBox.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case ENTER -> roleComboBox.show(); // open dropdown only on ENTER
+                case UP -> passwordField.requestFocus(); // move up
+                case DOWN -> firstNameField.requestFocus(); // loop back to top
+            }
+        });
+
+        roleComboBox.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case ENTER -> roleComboBox.show();
+                case UP -> passwordField.requestFocus();
+                case DOWN -> createUserButton.requestFocus();
             }
         });
     }
@@ -121,12 +135,6 @@ public class AdminDashboardController {
             return;
         }
 
-        // ⭐ NEW: Duplicate email check
-        if (userManager.emailExists(email)) {
-            statusLabel.setText("Email already exists.");
-            return;
-        }
-
         UserRole role = roleStr.equals("ADMIN") ? UserRole.ADMIN : UserRole.USER;
 
         userManager.createUser(username, firstName, lastName, email, password, role);
@@ -135,6 +143,7 @@ public class AdminDashboardController {
         clearFields();
         loadUsers();
     }
+
 
     @FXML
     private void onDeleteUser() {
