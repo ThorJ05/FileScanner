@@ -2,6 +2,7 @@ package com.example.filescanner.BLL;
 
 import com.example.filescanner.BEE.User;
 import com.example.filescanner.DAL.UserRepository;
+import com.example.filescanner.Util.PasswordUtil;
 
 import java.util.Optional;
 

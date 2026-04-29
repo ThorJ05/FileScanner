@@ -6,146 +6,160 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.filescanner.GUI.Controllers.AdminDashboardController"
-            prefWidth="900" prefHeight="600"
-            style="-fx-background-color: #1e1e2e;"
-            stylesheets="@style.css">
+            prefWidth="1200" prefHeight="750"
+            style="-fx-background-color: #1e1e2e;">
 
     <!-- Sidebar -->
     <left>
-        <VBox spacing="4" prefWidth="200"
-              style="-fx-background-color: #181825; -fx-padding: 20;">
+        <VBox spacing="18" prefWidth="280"
+              style="-fx-background-color: #181825; -fx-padding: 28;">
+
             <Label text="FileScanner"
-                   style="-fx-font-size: 18px; -fx-font-weight: bold;
-                          -fx-text-fill: #cdd6f4; -fx-padding: 0 0 20 0;"/>
+                   style="-fx-font-size: 24px; -fx-font-weight: bold;
+                          -fx-text-fill: #cdd6f4; -fx-padding: 0 0 30 0;"/>
+
             <Button text="Dashboard" maxWidth="Infinity" onAction="#onDashboard"
                     style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                           -fx-alignment: center-left; -fx-padding: 10;
-                           -fx-background-radius: 6; -fx-cursor: hand;"/>
+                           -fx-alignment: center-left; -fx-padding: 14;
+                           -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+            <Button text="Profiler" maxWidth="Infinity" onAction="#openProfiles"
+                    style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
+                           -fx-alignment: center-left; -fx-padding: 14;
+                           -fx-background-radius: 8; -fx-cursor: hand;"/>
+
             <Region VBox.vgrow="ALWAYS"/>
+
             <Button text="Logout" maxWidth="Infinity" onAction="#onLogout"
                     style="-fx-background-color: transparent; -fx-text-fill: #f38ba8;
-                           -fx-alignment: center-left; -fx-padding: 10;
-                           -fx-background-radius: 6; -fx-cursor: hand;"/>
+                           -fx-alignment: center-left; -fx-padding: 14;
+                           -fx-background-radius: 8; -fx-cursor: hand;"/>
         </VBox>
     </left>
 
-    <!-- Main content -->
+    <!-- Main content area -->
     <center>
-        <HBox spacing="24" style="-fx-padding: 32;">
+        <AnchorPane fx:id="contentArea">
 
-            <!-- Left: User list -->
-            <VBox spacing="12" prefWidth="320">
-                <Label text="Admin Dashboard"
-                       style="-fx-font-size: 22px; -fx-font-weight: bold;
-                              -fx-text-fill: #cdd6f4;"/>
-                <Label text="Manage users and their access"
-                       style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;"/>
+            <!-- Default dashboard content -->
+            <HBox spacing="40" style="-fx-padding: 40;"
+                  AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                  AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 
-                <HBox spacing="8" alignment="CENTER_LEFT"
-                      style="-fx-background-color: #313244; -fx-padding: 12;
-                             -fx-background-radius: 8;">
-                    <Label text="Total Users"
-                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <Label fx:id="userCountLabel" text="0"
-                           style="-fx-text-fill: #89b4fa; -fx-font-size: 12px;
-                                  -fx-font-weight: bold;"/>
-                </HBox>
+                <!-- Left: User list -->
+                <VBox spacing="20" prefWidth="380">
+                    <Label text="Admin Dashboard"
+                           style="-fx-font-size: 28px; -fx-font-weight: bold;
+                                  -fx-text-fill: #cdd6f4;"/>
+                    <Label text="Manage users and their access"
+                           style="-fx-font-size: 14px; -fx-text-fill: #a6adc8;"/>
 
-                <ListView fx:id="userListView" prefHeight="320"
-                          style="-fx-background-color: #313244;
-                                 -fx-background-radius: 8;
-                                 -fx-border-color: #45475a;
-                                 -fx-border-radius: 8;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT"
+                          style="-fx-background-color: #313244; -fx-padding: 16;
+                                 -fx-background-radius: 8;">
+                        <Label text="Total Users"
+                               style="-fx-text-fill: #a6adc8; -fx-font-size: 13px;"/>
+                        <Label fx:id="userCountLabel" text="0"
+                               style="-fx-text-fill: #89b4fa; -fx-font-size: 13px;
+                                      -fx-font-weight: bold;"/>
+                    </HBox>
 
-                <Button text="Delete Selected User" onAction="#onDeleteUser"
-                        maxWidth="Infinity"
-                        style="-fx-background-color: #313244; -fx-text-fill: #f38ba8;
-                               -fx-font-weight: bold; -fx-padding: 10;
-                               -fx-background-radius: 6; -fx-cursor: hand;
-                               -fx-border-color: #f38ba8; -fx-border-radius: 6;"/>
-            </VBox>
+                    <ListView fx:id="userListView" prefHeight="400"
+                              style="-fx-background-color: #313244;
+                                     -fx-background-radius: 8;
+                                     -fx-border-color: #45475a;
+                                     -fx-border-radius: 8;"/>
 
-            <Separator orientation="VERTICAL"
-                       style="-fx-background-color: #313244;"/>
-
-            <!-- Right: Create user form -->
-            <VBox spacing="10" prefWidth="280">
-                <Label text="Create New User"
-                       style="-fx-font-size: 16px; -fx-font-weight: bold;
-                              -fx-text-fill: #cdd6f4;"/>
-                <Label text="Fill in the details below to add a new user"
-                       style="-fx-font-size: 12px; -fx-text-fill: #a6adc8;"/>
-
-                <VBox spacing="4">
-                    <Label text="First Name(Username)"
-                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <TextField fx:id="firstNameField" promptText="First name"
-                               style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                                      -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                                      -fx-border-radius: 6; -fx-background-radius: 6;
-                                      -fx-padding: 9;"/>
+                    <Button text="Delete Selected User" onAction="#onDeleteUser"
+                            maxWidth="Infinity"
+                            style="-fx-background-color: #313244; -fx-text-fill: #f38ba8;
+                                   -fx-font-weight: bold; -fx-padding: 14;
+                                   -fx-background-radius: 8; -fx-cursor: hand;
+                                   -fx-border-color: #f38ba8; -fx-border-radius: 8;"/>
                 </VBox>
 
-                <VBox spacing="4">
-                    <Label text="Last Name"
-                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <TextField fx:id="lastNameField" promptText="Last name"
-                               style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                                      -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                                      -fx-border-radius: 6; -fx-background-radius: 6;
-                                      -fx-padding: 9;"/>
-                </VBox>
+                <Separator orientation="VERTICAL"
+                           style="-fx-background-color: #313244;"/>
 
-                <VBox spacing="4">
-                    <Label text="Company Name"
-                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <TextField fx:id="companyField" promptText="Company name"
-                               style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                                      -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                                      -fx-border-radius: 6; -fx-background-radius: 6;
-                                      -fx-padding: 9;"/>
-                </VBox>
+                <!-- Right: Create user form -->
+                <VBox spacing="16" prefWidth="340">
+                    <Label text="Create New User"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold;
+                                  -fx-text-fill: #cdd6f4;"/>
+                    <Label text="Fill in the details below to add a new user"
+                           style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;"/>
 
-                <VBox spacing="4">
-                    <Label text="Email"
-                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <TextField fx:id="emailField" promptText="Email address"
-                               style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                                      -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                                      -fx-border-radius: 6; -fx-background-radius: 6;
-                                      -fx-padding: 9;"/>
-                </VBox>
-
-                <VBox spacing="4">
-                    <Label text="Password"
-                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <PasswordField fx:id="passwordField" promptText="Password"
+                    <VBox spacing="8">
+                        <Label text="First Name (Username)"
+                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                        <TextField fx:id="firstNameField" promptText="First name"
                                    style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
                                           -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                                          -fx-border-radius: 6; -fx-background-radius: 6;
-                                          -fx-padding: 9;"/>
+                                          -fx-border-radius: 8; -fx-background-radius: 8;
+                                          -fx-padding: 10;"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Last Name"
+                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                        <TextField fx:id="lastNameField" promptText="Last name"
+                                   style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
+                                          -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
+                                          -fx-border-radius: 8; -fx-background-radius: 8;
+                                          -fx-padding: 10;"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Company Name"
+                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                        <TextField fx:id="companyField" promptText="Company name"
+                                   style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
+                                          -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
+                                          -fx-border-radius: 8; -fx-background-radius: 8;
+                                          -fx-padding: 10;"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Email"
+                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                        <TextField fx:id="emailField" promptText="Email address"
+                                   style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
+                                          -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
+                                          -fx-border-radius: 8; -fx-background-radius: 8;
+                                          -fx-padding: 10;"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Password"
+                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                        <PasswordField fx:id="passwordField" promptText="Password"
+                                       style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
+                                              -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
+                                              -fx-border-radius: 8; -fx-background-radius: 8;
+                                              -fx-padding: 10;"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Role"
+                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                        <ComboBox fx:id="roleComboBox" maxWidth="Infinity"
+                                  promptText="Select role"/>
+                    </VBox>
+
+                    <Button fx:id="createUserButton"
+                            text="Create User"
+                            onAction="#onCreateUser"
+                            maxWidth="Infinity"
+                            style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;
+                                   -fx-font-weight: bold; -fx-padding: 14;
+                                   -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+                    <Label fx:id="statusLabel" text=""
+                           style="-fx-text-fill: #a6e3a1; -fx-font-size: 12px;"/>
                 </VBox>
 
-                <VBox spacing="4">
-                    <Label text="Role"
-                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <ComboBox fx:id="roleComboBox" maxWidth="Infinity"
-                              promptText="Select role"/>
-                </VBox>
-
-                <Button fx:id="createUserButton"
-                        text="Create User"
-                        onAction="#onCreateUser"
-                        maxWidth="Infinity"
-                        style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;
-               -fx-font-weight: bold; -fx-padding: 10;
-               -fx-background-radius: 6; -fx-cursor: hand;"/>
-
-                <Label fx:id="statusLabel" text=""
-                       style="-fx-text-fill: #a6e3a1; -fx-font-size: 12px;"/>
-            </VBox>
-
-        </HBox>
+            </HBox>
+        </AnchorPane>
     </center>
 
 </BorderPane>

@@ -20,7 +20,6 @@ public class UserRepository implements IUserRepository {
 
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
-
             if (rs.next()) {
                 User user = new BasicUser(
                         String.valueOf(rs.getInt("UserId")),  // fix: int to String

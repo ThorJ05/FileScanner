@@ -42,6 +42,11 @@ public class AdminDashboardController {
         });
     }
 
+    public void openProfiles() {
+        SceneController.switchTo("profiles.fxml");
+    }
+
+
     private void setupKeyboardShortcuts(Scene scene) {
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
