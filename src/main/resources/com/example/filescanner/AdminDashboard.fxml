@@ -77,7 +77,7 @@
                        style="-fx-font-size: 12px; -fx-text-fill: #a6adc8;"/>
 
                 <VBox spacing="4">
-                    <Label text="First Name"
+                    <Label text="First Name(Username)"
                            style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
                     <TextField fx:id="firstNameField" promptText="First name"
                                style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
