@@ -12,24 +12,20 @@ public class UserManager {
 
     private final UserRepository repo = new UserRepository();
 
-    // ⭐ NEW: Check if email exists
-    public boolean emailExists(String email) {
-        return repo.emailExists(email);
-    }
-
     public void createUser(String username, String first, String last, String email, String password, UserRole role) {
 
         User user = new BasicUser(
                 UUID.randomUUID().toString(),
-                username,
+                username,      // ✔ UserName
                 last,
                 email,
-                password,
+                password,      // ✔ PasswordHash
                 role
         );
 
         repo.createUser(user);
     }
+
 
     public void deleteUser(String id) {
         repo.deleteUser(id);
