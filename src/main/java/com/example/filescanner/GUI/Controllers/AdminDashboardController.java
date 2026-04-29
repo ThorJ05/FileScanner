@@ -89,7 +89,7 @@ public class AdminDashboardController {
         roleComboBox.setOnKeyPressed(e -> {
             switch (e.getCode()) {
                 case UP -> passwordField.requestFocus();
-                case DOWN -> firstNameField.requestFocus(); // loop back to top
+                case DOWN -> firstNameField.requestFocus();
             }
         });
 
