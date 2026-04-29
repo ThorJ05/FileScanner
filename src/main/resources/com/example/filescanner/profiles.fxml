@@ -19,7 +19,7 @@
             <TableView fx:id="profileTable"
                        style="-fx-background-color: #313244; -fx-border-color: #45475a;">
                 <columns>
-                    <TableColumn fx:id="colName" text="Navn" prefWidth="120"/>
+                    <TableColumn fx:id="colName" text="Name" prefWidth="120"/>
                     <TableColumn fx:id="colRotation" text="Rotation" prefWidth="80"/>
                     <TableColumn fx:id="colFormat" text="Format" prefWidth="80"/>
                     <TableColumn fx:id="colBrightness" text="Brightness" prefWidth="100"/>
@@ -33,10 +33,10 @@
     <!-- CENTER: Editor -->
     <center>
         <VBox spacing="12" style="-fx-padding: 20;">
-            <Label text="Rediger profil"
+            <Label text="Edit profil"
                    style="-fx-font-size: 18px; -fx-text-fill: #cdd6f4;"/>
 
-            <Label text="Navn" style="-fx-text-fill: #cdd6f4;"/>
+            <Label text="Name" style="-fx-text-fill: #cdd6f4;"/>
             <TextField fx:id="txtName"
                        style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
 
@@ -63,11 +63,11 @@
                       style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
 
             <HBox spacing="10">
-                <Button text="Opret" onAction="#createProfile"
+                <Button text="Create" onAction="#createProfile"
                         style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;"/>
-                <Button text="Gem" onAction="#saveProfile"
+                <Button text="Save" onAction="#saveProfile"
                         style="-fx-background-color: #a6e3a1; -fx-text-fill: #1e1e2e;"/>
-                <Button text="Slet" onAction="#deleteProfile"
+                <Button text="Delete" onAction="#deleteProfile"
                         style="-fx-background-color: #f38ba8; -fx-text-fill: #1e1e2e;"/>
             </HBox>
         </VBox>
