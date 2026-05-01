@@ -119,7 +119,6 @@ public class ProfileController {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select sample image");
 
-        // HER SKAL DEN VÆRE
         chooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("TIFF Files", "*.tif", "*.tiff")
         );
