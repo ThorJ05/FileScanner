@@ -58,8 +58,8 @@ public class ProfileManager {
         if (p.getName() == null || p.getName().isBlank())
             throw new IllegalArgumentException("Profile name cannot be empty");
 
-        if (p.getRotation() % 90 != 0)
-            throw new IllegalArgumentException("Rotation must be 0, 90, 180 or 270");
+        if (p.getRotation() < 0 || p.getRotation() > 360)
+            throw new IllegalArgumentException("Rotation must be between 0 and 360 degrees");
 
         if (p.getBrightness() < -255 || p.getBrightness() > 255)
             throw new IllegalArgumentException("Brightness must be between -255 and 255");

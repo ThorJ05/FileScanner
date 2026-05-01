@@ -33,7 +33,11 @@ public class UserDashboardController {
     }
 
     @FXML
-    private void onDashboard() {}
+    private void onDashboard() {
+        // Refresh dashboard content
+        loadUserInfo();
+        loadStats();
+    }
 
     @FXML
     private void onBack() {

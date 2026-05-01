@@ -13,8 +13,8 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        // ONE-TIME migration — delete this line after running the app once!
-        new UserManager().rehashAllPlainTextPasswords();
+        // Run startup migrations in a dedicated helper to keep MainApp small.
+        com.example.filescanner.Util.StartupManager.runMigrations();
 
         SceneController.setStage(stage);
 

@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.image.ImageView?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -30,50 +31,69 @@
         </VBox>
     </left>
 
-    <!-- CENTER: Editor -->
+    <!-- CENTER: Editor + Preview -->
     <center>
-        <VBox spacing="12" style="-fx-padding: 20;">
-            <HBox alignment="CENTER_LEFT">
-                <Button text="Tilbage" onAction="#onBack" style="-fx-background-color: transparent; -fx-text-fill: #89b4fa; -fx-padding: 6; -fx-cursor: hand;"/>
-            </HBox>
-            <Label text="Edit profil"
-                   style="-fx-font-size: 18px; -fx-text-fill: #cdd6f4;"/>
+        <HBox spacing="12" style="-fx-padding: 20;">
+            <!-- LEFT: Editor -->
+            <VBox spacing="12" prefWidth="420">
+                <HBox alignment="CENTER_LEFT">
+                    <Button text="Tilbage" onAction="#onBack" style="-fx-background-color: transparent; -fx-text-fill: #89b4fa; -fx-padding: 6; -fx-cursor: hand;"/>
+                </HBox>
+                <Label text="Edit profil"
+                       style="-fx-font-size: 18px; -fx-text-fill: #cdd6f4;"/>
 
-            <Label text="Name" style="-fx-text-fill: #cdd6f4;"/>
-            <TextField fx:id="txtName"
-                       style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+                <Label text="Name" style="-fx-text-fill: #cdd6f4;"/>
+                <TextField fx:id="txtName"
+                           style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
 
-            <Label text="Rotation" style="-fx-text-fill: #cdd6f4;"/>
-            <Slider fx:id="sliderRotation"
-                    min="0" max="270"
-                    majorTickUnit="90"
-                    blockIncrement="90"
-                    snapToTicks="true"
-                    showTickLabels="true"
-                    showTickMarks="true"/>
+                <Label text="Rotation (degrees)" style="-fx-text-fill: #cdd6f4;"/>
+                <HBox spacing="8">
+                    <Slider fx:id="sliderRotation"
+                            min="0" max="360"
+                            blockIncrement="1"
+                            snapToTicks="false"
+                            showTickLabels="true"
+                            showTickMarks="true" HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="txtRotationValue" prefWidth="70" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+                </HBox>
 
-            <Label text="Brightness" style="-fx-text-fill: #cdd6f4;"/>
-            <Slider fx:id="sliderBrightness" min="-255" max="255"/>
+                <Label text="Brightness" style="-fx-text-fill: #cdd6f4;"/>
+                <HBox spacing="8">
+                    <Slider fx:id="sliderBrightness" min="-255" max="255" HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="txtBrightnessValue" prefWidth="70" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+                </HBox>
 
-            <Label text="Contrast" style="-fx-text-fill: #cdd6f4;"/>
-            <Slider fx:id="sliderContrast" min="0.1" max="10"/>
+                <Label text="Contrast" style="-fx-text-fill: #cdd6f4;"/>
+                <HBox spacing="8">
+                    <Slider fx:id="sliderContrast" min="0.1" max="10" HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="txtContrastValue" prefWidth="70" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+                </HBox>
 
-            <CheckBox fx:id="chkSplit" text="Split on barcode"
-                      style="-fx-text-fill: #cdd6f4;"/>
+                <CheckBox fx:id="chkSplit" text="Split on barcode"
+                          style="-fx-text-fill: #cdd6f4;"/>
 
-            <Label text="Export format" style="-fx-text-fill: #cdd6f4;"/>
-            <ComboBox fx:id="comboFormat"
-                      style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+                <Label text="Export format" style="-fx-text-fill: #cdd6f4;"/>
+                <ComboBox fx:id="comboFormat"
+                          style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
 
-            <HBox spacing="10">
-                <Button text="Create" onAction="#createProfile"
-                        style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;"/>
-                <Button text="Save" onAction="#saveProfile"
-                        style="-fx-background-color: #a6e3a1; -fx-text-fill: #1e1e2e;"/>
-                <Button text="Delete" onAction="#deleteProfile"
-                        style="-fx-background-color: #f38ba8; -fx-text-fill: #1e1e2e;"/>
-            </HBox>
-        </VBox>
+                <HBox spacing="10">
+                    <Button text="Create" onAction="#createProfile"
+                            style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;"/>
+                    <Button text="Save" onAction="#saveProfile"
+                            style="-fx-background-color: #a6e3a1; -fx-text-fill: #1e1e2e;"/>
+                    <Button text="Delete" onAction="#deleteProfile"
+                            style="-fx-background-color: #f38ba8; -fx-text-fill: #1e1e2e;"/>
+                </HBox>
+            </VBox>
+
+            <!-- RIGHT: Preview -->
+            <VBox spacing="8" alignment="TOP_CENTER">
+                <Label text="Preview" style="-fx-font-size: 16px; -fx-text-fill: #cdd6f4;"/>
+                <ImageView fx:id="imgPreview" fitWidth="420" fitHeight="560" preserveRatio="true" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 6,0,0,2); -fx-background-color: #121212;"/>
+                <Button fx:id="btnLoadSample" text="Load sample image" style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;"/>
+                <Label text="Load a sample document to preview profile changes. Use sliders or type values." style="-fx-text-fill: #a6adcd; -fx-wrap-text: true;"/>
+            </VBox>
+        </HBox>
     </center>
 
 </BorderPane>

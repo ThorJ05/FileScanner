@@ -41,13 +41,20 @@ public class SceneController {
                 history.push(currentFxml);
             }
 
-            Parent root = FXMLLoader.load(
-                    SceneController.class.getResource("/com/example/filescanner/" + fxmlFile)
-            );
+            System.out.println("Switching to FXML: " + fxmlFile);
+
+            java.net.URL resource = SceneController.class.getResource("/com/example/filescanner/" + fxmlFile);
+            if (resource == null) {
+                System.err.println("FXML resource not found: " + fxmlFile + " (checked /com/example/filescanner/)");
+                return;
+            }
+
+            Parent root = FXMLLoader.load(resource);
             mainStage.setScene(new Scene(root));
             mainStage.show();
             currentFxml = fxmlFile;
-        } catch (IOException e) {
+        } catch (Exception e) {
+            System.err.println("Failed to load scene: " + fxmlFile + "; see stacktrace");
             e.printStackTrace();
         }
     }

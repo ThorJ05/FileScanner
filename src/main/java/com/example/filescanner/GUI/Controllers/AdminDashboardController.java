@@ -42,6 +42,7 @@ public class AdminDashboardController {
         });
     }
 
+    @FXML
     public void openProfiles() {
         SceneController.switchTo("profiles.fxml");
     }
@@ -58,53 +59,11 @@ public class AdminDashboardController {
     }
 
     private void setupArrowNavigation() {
-
-        firstNameField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.DOWN) lastNameField.requestFocus();
-        });
-
-        lastNameField.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case UP -> firstNameField.requestFocus();
-                case DOWN -> companyField.requestFocus();
-            }
-        });
-
-        companyField.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case UP -> lastNameField.requestFocus();
-                case DOWN -> emailField.requestFocus();
-            }
-        });
-
-        emailField.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case UP -> companyField.requestFocus();
-                case DOWN -> passwordField.requestFocus();
-            }
-        });
-
-        passwordField.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case UP -> emailField.requestFocus();
-                case DOWN -> roleComboBox.requestFocus();
-            }
-        });
-
-        roleComboBox.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case UP -> passwordField.requestFocus();
-                case DOWN -> firstNameField.requestFocus();
-            }
-        });
-
-        roleComboBox.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case ENTER -> roleComboBox.show(); // open dropdown only on ENTER
-                case UP -> passwordField.requestFocus(); // move up
-                case DOWN -> firstNameField.requestFocus(); // loop back to top
-            }
-        });
+        firstNameField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.DOWN) lastNameField.requestFocus(); });
+        lastNameField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.UP) firstNameField.requestFocus(); else if (e.getCode() == KeyCode.DOWN) companyField.requestFocus(); });
+        companyField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.UP) lastNameField.requestFocus(); else if (e.getCode() == KeyCode.DOWN) emailField.requestFocus(); });
+        emailField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.UP) companyField.requestFocus(); else if (e.getCode() == KeyCode.DOWN) passwordField.requestFocus(); });
+        passwordField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.UP) emailField.requestFocus(); else if (e.getCode() == KeyCode.DOWN) roleComboBox.requestFocus(); });
 
         roleComboBox.setOnKeyPressed(e -> {
             switch (e.getCode()) {
