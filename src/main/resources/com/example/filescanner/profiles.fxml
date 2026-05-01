@@ -62,7 +62,7 @@
 
                 <Label text="Brightness" style="-fx-text-fill: #cdd6f4;"/>
                 <HBox spacing="8">
-                    <Slider fx:id="sliderBrightness" min="-250" max="-250" HBox.hgrow="ALWAYS"/>
+                    <Slider fx:id="sliderBrightness" min="-255" max="255" HBox.hgrow="ALWAYS"/>
                     <TextField fx:id="txtBrightnessValue" prefWidth="70"
                                style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
                 </HBox>
