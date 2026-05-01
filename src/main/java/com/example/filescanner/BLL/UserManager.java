@@ -18,10 +18,6 @@ public class UserManager {
     }
 
 
-    public boolean emailExists(String email) {
-        return repo.emailExists(email);
-    }
-
     public void createUser(String username, String first, String last, String email, String password, UserRole role) {
         String hashedPassword = PasswordUtil.hashPassword(password);
 

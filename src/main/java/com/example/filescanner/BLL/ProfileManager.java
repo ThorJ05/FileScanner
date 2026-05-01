@@ -13,9 +13,7 @@ public class ProfileManager {
         this.repo = repo;
     }
 
-    // ---------------------------
     //  PUBLIC BUSINESS METHODS
-    // ---------------------------
 
     public List<Profile> getAllProfiles() {
         return repo.getAll();
@@ -47,9 +45,7 @@ public class ProfileManager {
         return repo.getProfilesForUser(userId);
     }
 
-    // ---------------------------
     //  PRIVATE VALIDATION LOGIC
-    // ---------------------------
 
     private void validate(Profile p) {
         if (p == null)
