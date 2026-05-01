@@ -10,7 +10,8 @@ public class SliderBinder {
 
         slider.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (!field.isFocused()) {
-                field.setText(String.format("%.2f", newVal.doubleValue()));
+                field.setText(String.valueOf((int) Math.round(newVal.doubleValue())));
+
             }
             onChange.run();
         });

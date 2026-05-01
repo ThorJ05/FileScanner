@@ -62,8 +62,8 @@ public class ProfileController {
 
     private void setupBindings() {
         SliderBinder.bind(sliderRotation, txtRotationValue, this::updatePreview, 0, 360);
-        SliderBinder.bind(sliderBrightness, txtBrightnessValue, this::updatePreview, -255, 255);
-        SliderBinder.bind(sliderContrast, txtContrastValue, this::updatePreview, 0.1, 10);
+        SliderBinder.bind(sliderBrightness, txtBrightnessValue, this::updatePreview, -250, 250);
+        SliderBinder.bind(sliderContrast, txtContrastValue, this::updatePreview, 0.1, 100);
 
         comboFormat.getItems().addAll("TIFF", "PNG", "JPG");
     }
