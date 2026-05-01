@@ -37,8 +37,10 @@
             <!-- LEFT: Editor -->
             <VBox spacing="12" prefWidth="420">
                 <HBox alignment="CENTER_LEFT">
-                    <Button text="Tilbage" onAction="#onBack" style="-fx-background-color: transparent; -fx-text-fill: #89b4fa; -fx-padding: 6; -fx-cursor: hand;"/>
+                    <Button text="Tilbage" onAction="#onBack"
+                            style="-fx-background-color: transparent; -fx-text-fill: #89b4fa; -fx-padding: 6; -fx-cursor: hand;"/>
                 </HBox>
+
                 <Label text="Edit profil"
                        style="-fx-font-size: 18px; -fx-text-fill: #cdd6f4;"/>
 
@@ -54,19 +56,22 @@
                             snapToTicks="false"
                             showTickLabels="true"
                             showTickMarks="true" HBox.hgrow="ALWAYS"/>
-                    <TextField fx:id="txtRotationValue" prefWidth="70" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+                    <TextField fx:id="txtRotationValue" prefWidth="70"
+                               style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
                 </HBox>
 
                 <Label text="Brightness" style="-fx-text-fill: #cdd6f4;"/>
                 <HBox spacing="8">
                     <Slider fx:id="sliderBrightness" min="-255" max="255" HBox.hgrow="ALWAYS"/>
-                    <TextField fx:id="txtBrightnessValue" prefWidth="70" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+                    <TextField fx:id="txtBrightnessValue" prefWidth="70"
+                               style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
                 </HBox>
 
                 <Label text="Contrast" style="-fx-text-fill: #cdd6f4;"/>
                 <HBox spacing="8">
                     <Slider fx:id="sliderContrast" min="0.1" max="10" HBox.hgrow="ALWAYS"/>
-                    <TextField fx:id="txtContrastValue" prefWidth="70" style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+                    <TextField fx:id="txtContrastValue" prefWidth="70"
+                               style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
                 </HBox>
 
                 <CheckBox fx:id="chkSplit" text="Split on barcode"
@@ -88,10 +93,23 @@
 
             <!-- RIGHT: Preview -->
             <VBox spacing="8" alignment="TOP_CENTER">
-                <Label text="Preview" style="-fx-font-size: 16px; -fx-text-fill: #cdd6f4;"/>
-                <ImageView fx:id="imgPreview" fitWidth="420" fitHeight="560" preserveRatio="true" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 6,0,0,2); -fx-background-color: #121212;"/>
-                <Button fx:id="btnLoadSample" text="Load sample image" style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;"/>
-                <Label text="Load a sample document to preview profile changes. Use sliders or type values." style="-fx-text-fill: #a6adcd; -fx-wrap-text: true;"/>
+                <Label text="Preview"
+                       style="-fx-font-size: 16px; -fx-text-fill: #cdd6f4;"/>
+
+                <ImageView fx:id="imgPreview"
+                           fitWidth="420" fitHeight="560"
+                           preserveRatio="true"
+                           style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 6,0,0,2);
+                                  -fx-background-color: #121212;"/>
+
+                <!-- FIXED BUTTON -->
+                <Button fx:id="btnLoadSample"
+                        text="Load sample image"
+                        onAction="#loadSampleImage"
+                        style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;"/>
+
+                <Label text="Load a sample document to preview profile changes. Use sliders or type values."
+                       style="-fx-text-fill: #a6adcd; -fx-wrap-text: true;"/>
             </VBox>
         </HBox>
     </center>

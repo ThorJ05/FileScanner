@@ -1,22 +1,17 @@
 package com.example.filescanner.GUI.Controllers;
 
 import com.example.filescanner.BEE.Profile;
-import com.example.filescanner.BLL.PreviewService;
 import com.example.filescanner.BLL.ProfileManager;
+import com.example.filescanner.BLL.ProfileMapper;
+import com.example.filescanner.BLL.PreviewService;
 import com.example.filescanner.DAL.ProfileRepository;
-import com.example.filescanner.GUI.helpers.SliderBinder;
 import com.example.filescanner.Util.ImageLoader;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
+import com.example.filescanner.GUI.helpers.SliderBinder;
+import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import com.example.filescanner.BLL.ProfileMapper;
-
-
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -37,56 +32,40 @@ public class ProfileController {
     @FXML private CheckBox chkSplit;
     @FXML private ComboBox<String> comboFormat;
     @FXML private ImageView imgPreview;
-    @FXML private Button btnLoadSample;
 
     private final ProfileManager manager = new ProfileManager(new ProfileRepository());
+
     private final PreviewService previewService = new PreviewService();
+
     private BufferedImage sampleImage;
     private Profile selected;
 
     @FXML
     public void initialize() {
-
         setupTable();
         loadProfiles();
+        setupBindings();
+    }
+
+    private void setupTable() {
+        colName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getName()));
+        colRotation.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getRotation()).asObject());
+        colFormat.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getExportFormat()));
+        colBrightness.setCellValueFactory(c -> new SimpleFloatProperty(c.getValue().getBrightness()).asObject());
+        colContrast.setCellValueFactory(c -> new SimpleFloatProperty(c.getValue().getContrast()).asObject());
+        colSplit.setCellValueFactory(c -> new SimpleBooleanProperty(c.getValue().isSplitOnBarcode()).asObject());
 
         profileTable.getSelectionModel().selectedItemProperty().addListener((obs, old, p) -> {
             if (p != null) loadProfileIntoFields(p);
         });
+    }
 
-        // Bind sliders ↔ textfields
+    private void setupBindings() {
         SliderBinder.bind(sliderRotation, txtRotationValue, this::updatePreview, 0, 360);
         SliderBinder.bind(sliderBrightness, txtBrightnessValue, this::updatePreview, -255, 255);
         SliderBinder.bind(sliderContrast, txtContrastValue, this::updatePreview, 0.1, 10);
 
-        comboFormat.getItems().addAll("PNG", "JPG", "TIFF");
-
-        btnLoadSample.setOnAction(e -> {
-            try {
-                loadSampleImage();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-    }
-    private void setupTable() {
-        colName.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getName()));
-
-        colRotation.setCellValueFactory(c ->
-                new SimpleIntegerProperty(c.getValue().getRotation()).asObject());
-
-        colFormat.setCellValueFactory(c ->
-                new SimpleStringProperty(c.getValue().getExportFormat()));
-
-        colBrightness.setCellValueFactory(c ->
-                new SimpleFloatProperty(c.getValue().getBrightness()).asObject());
-
-        colContrast.setCellValueFactory(c ->
-                new SimpleFloatProperty(c.getValue().getContrast()).asObject());
-
-        colSplit.setCellValueFactory(c ->
-                new SimpleBooleanProperty(c.getValue().isSplitOnBarcode()).asObject());
+        comboFormat.getItems().addAll("TIFF", "PNG", "JPG");
     }
 
     private void loadProfiles() {
@@ -106,9 +85,7 @@ public class ProfileController {
 
     @FXML
     public void createProfile() {
-        Profile p = ProfileMapper.fromFields(
-                txtName, sliderRotation, sliderBrightness, sliderContrast, chkSplit, comboFormat
-        );
+        Profile p = ProfileMapper.fromFields(txtName, sliderRotation, sliderBrightness, sliderContrast, chkSplit, comboFormat);
         manager.createProfile(p);
         loadProfiles();
         clearFields();
@@ -118,10 +95,7 @@ public class ProfileController {
     public void saveProfile() {
         if (selected == null) return;
 
-        ProfileMapper.updateProfile(selected,
-                txtName, sliderRotation, sliderBrightness, sliderContrast, chkSplit, comboFormat
-        );
-
+        ProfileMapper.updateProfile(selected, txtName, sliderRotation, sliderBrightness, sliderContrast, chkSplit, comboFormat);
         manager.updateProfile(selected);
         loadProfiles();
     }
@@ -129,10 +103,53 @@ public class ProfileController {
     @FXML
     public void deleteProfile() {
         if (selected == null) return;
+
         manager.deleteProfile(selected.getId());
         loadProfiles();
         clearFields();
     }
+
+    @FXML
+    private void onBack() {
+        SceneController.goBack();
+    }
+
+    @FXML
+    private void loadSampleImage() throws IOException {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select sample image");
+
+        // HER SKAL DEN VÆRE
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("TIFF Files", "*.tif", "*.tiff")
+        );
+
+        File f = chooser.showOpenDialog(null);
+        if (f != null) {
+            sampleImage = ImageLoader.loadTiff(f);
+            updatePreview();
+        }
+    }
+
+
+    private void updatePreview() {
+        if (sampleImage == null) return;
+
+        Profile p = selected;
+
+        if (p == null) {
+            p = new Profile(
+                    txtName.getText(),
+                    (int) sliderRotation.getValue(),
+                    (float) sliderBrightness.getValue(),
+                    (float) sliderContrast.getValue(),
+                    chkSplit.isSelected(),
+                    comboFormat.getValue()
+            );
+        }
+        imgPreview.setImage(previewService.generatePreview(sampleImage, p));
+    }
+
 
     private void clearFields() {
         txtName.clear();
@@ -144,35 +161,5 @@ public class ProfileController {
         imgPreview.setImage(null);
         selected = null;
         sampleImage = null;
-    }
-
-    private void updatePreview() {
-        if (sampleImage == null) return;
-        imgPreview.setImage(previewService.generatePreview(
-                sampleImage,
-                (int) sliderRotation.getValue(),
-                (float) sliderBrightness.getValue(),
-                (float) sliderContrast.getValue()
-        ));
-    }
-    @FXML
-    private void onBack() {
-        SceneController.goBack();
-    }
-
-
-    private void loadSampleImage() throws IOException {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select sample image");
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.tif", "*.tiff")
-        );
-
-        File f = chooser.showOpenDialog(null);
-        if (f != null) {
-            sampleImage = ImageLoader.loadTiff(f);
-
-            updatePreview();
-        }
     }
 }

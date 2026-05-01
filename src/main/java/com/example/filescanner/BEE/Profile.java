@@ -12,8 +12,7 @@ public class Profile {
     private boolean splitOnBarcode;
 
     private String exportFormat; // "TIFF", "PNG", "JPG"
-
-    // FULL CONSTRUCTOR (used by repository)
+    // Used by repository (loading from DB)
     public Profile(int id, String name, int rotation, float brightness, float contrast,
                    boolean splitOnBarcode, String exportFormat) {
         this.id = id;
@@ -25,8 +24,17 @@ public class Profile {
         this.exportFormat = exportFormat;
     }
 
-    // EMPTY CONSTRUCTOR (used by GUI)
-    public Profile() {}
+    // Used by GUI (creating new profiles)
+    public Profile(String name, int rotation, float brightness, float contrast,
+                   boolean splitOnBarcode, String exportFormat) {
+        this.name = name;
+        this.rotation = rotation;
+        this.brightness = brightness;
+        this.contrast = contrast;
+        this.splitOnBarcode = splitOnBarcode;
+        this.exportFormat = exportFormat;
+    }
+
 
     // GETTERS
     public int getId() { return id; }
