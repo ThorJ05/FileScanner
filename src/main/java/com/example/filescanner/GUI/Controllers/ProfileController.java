@@ -170,7 +170,8 @@ public class ProfileController {
 
         File f = chooser.showOpenDialog(null);
         if (f != null) {
-            sampleImage = ImageLoader.loadImage(f);
+            sampleImage = ImageLoader.loadTiff(f);
+
             updatePreview();
         }
     }
