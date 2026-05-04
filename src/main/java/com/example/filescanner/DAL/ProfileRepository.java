@@ -147,11 +147,11 @@ public class ProfileRepository implements IProfileRepository {
         List<Profile> list = new ArrayList<>();
 
         String sql = """
-                SELECT p.*
-                FROM Profiles p
-                JOIN ClientProfiles cp ON p.ProfileId = cp.ProfileId
-                WHERE cp.ClientId = ?
-                """;
+        SELECT p.*
+        FROM Profiles p
+        JOIN ClientProfiles cp ON p.ProfileId = cp.ProfileId
+        WHERE cp.ClientId = ?
+        """;
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -169,6 +169,8 @@ public class ProfileRepository implements IProfileRepository {
 
         return list;
     }
+
+
 
 
 

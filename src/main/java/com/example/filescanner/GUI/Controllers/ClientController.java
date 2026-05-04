@@ -8,12 +8,19 @@ import com.example.filescanner.DAL.ClientRepository;
 import com.example.filescanner.DAL.ProfileRepository;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.util.List;
 
 public class ClientController {
 
     @FXML private TextField txtCompanyName;
+
     @FXML private TableView<Client> tblClients;
-    @FXML private TableView<Profile> tblClientProfiles;
+    @FXML private TableColumn<Client, Integer> colId;
+    @FXML private TableColumn<Client, String> colCompany;
+    @FXML private TableColumn<Client, String> colAssignedProfiles;
+
     @FXML private ComboBox<Profile> comboProfiles;
 
     private ClientManager clientManager;
@@ -21,9 +28,28 @@ public class ClientController {
 
     @FXML
     public void initialize() {
-        profileManager = new ProfileManager(new ProfileRepository());
         clientManager = new ClientManager(new ClientRepository());
+        profileManager = new ProfileManager(new ProfileRepository());
 
+        // Clients table
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colCompany.setCellValueFactory(new PropertyValueFactory<>("companyName"));
+
+        // Assigned profiles column (simple, no lambdas)
+        colAssignedProfiles.setCellValueFactory(cellData -> {
+            Client client = cellData.getValue();
+            List<Profile> profiles = profileManager.getProfilesForClient(client.getId());
+
+            String names = "";
+            for (Profile p : profiles) {
+                if (!names.isEmpty()) {
+                    names += ", ";
+                }
+                names += p.getName();
+            }
+
+            return new javafx.beans.property.SimpleStringProperty(names);
+        });
 
         loadClients();
         loadProfiles();
@@ -60,12 +86,10 @@ public class ClientController {
         }
 
         profileManager.assignProfileToClient(selectedClient.getId(), selectedProfile.getId());
-        loadClientProfiles(selectedClient.getId());
+
+        loadClients();
     }
 
-    private void loadClientProfiles(int clientId) {
-        tblClientProfiles.getItems().setAll(profileManager.getProfilesForClient(clientId));
-    }
 
     private void showError(String msg) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

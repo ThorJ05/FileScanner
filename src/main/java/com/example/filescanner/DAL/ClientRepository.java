@@ -104,7 +104,7 @@ public class ClientRepository implements IClientRepository {
 
     private Client mapRow(ResultSet rs) throws SQLException {
         return new Client(
-                rs.getInt("ClientId"),
+                rs.getInt("Id"),
                 rs.getString("CompanyName")
         );
     }
