@@ -55,4 +55,9 @@ public class Profile {
     public void setSplitOnBarcode(boolean splitOnBarcode) { this.splitOnBarcode = splitOnBarcode; }
     public void setAutoCrop(boolean autoCrop) { this.autoCrop = autoCrop; }
     public void setExportFormat(String exportFormat) { this.exportFormat = exportFormat; }
+
+   @Override
+    public String toString() {
+        return name;}
+
 }

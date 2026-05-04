@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.filescanner.GUI.Controllers.ClientController"
+            style="-fx-background-color: #1e1e2e;">
+
+    <VBox spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
+
+        <!-- Title -->
+        <Label text="Clients"
+               style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;"/>
+
+        <!-- Create client -->
+        <HBox spacing="10">
+            <TextField fx:id="txtCompanyName" promptText="Company name"
+                       style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
+                              -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
+                              -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 10;"/>
+
+            <Button text="Create Client" onAction="#createClient"
+                    style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;
+                           -fx-font-weight: bold; -fx-padding: 10 18;
+                           -fx-background-radius: 8; -fx-cursor: hand;"/>
+        </HBox>
+
+        <!-- Clients table -->
+        <TableView fx:id="tblClients" prefHeight="220"
+                   style="-fx-background-color: #313244; -fx-border-color: #45475a;
+                          -fx-border-radius: 8; -fx-background-radius: 8;">
+            <columns>
+                <TableColumn text="ID" fx:id="colId" prefWidth="80"/>
+                <TableColumn text="Company" fx:id="colCompany" prefWidth="300"/>
+            </columns>
+        </TableView>
+
+        <!-- Assign profiles -->
+        <Label text="Assign Profiles to Client"
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;"/>
+
+        <HBox spacing="10">
+            <ComboBox fx:id="comboProfiles" promptText="Select profile"
+                      style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
+                             -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
+                             -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8;"/>
+
+            <Button text="Assign" onAction="#assignProfile"
+                    style="-fx-background-color: #a6e3a1; -fx-text-fill: #1e1e2e;
+                           -fx-font-weight: bold; -fx-padding: 10 18;
+                           -fx-background-radius: 8; -fx-cursor: hand;"/>
+        </HBox>
+
+        <!-- Profiles assigned to client -->
+        <TableView fx:id="tblClientProfiles" prefHeight="220"
+                   style="-fx-background-color: #313244; -fx-border-color: #45475a;
+                          -fx-border-radius: 8; -fx-background-radius: 8;">
+            <columns>
+                <TableColumn text="Profile Name" fx:id="colProfileName" prefWidth="200"/>
+                <TableColumn text="Rotation" fx:id="colRotation" prefWidth="100"/>
+                <TableColumn text="Format" fx:id="colFormat" prefWidth="100"/>
+            </columns>
+        </TableView>
+
+    </VBox>
+</AnchorPane>

@@ -4,10 +4,14 @@ import com.example.filescanner.BEE.User;
 import com.example.filescanner.BEE.UserRole;
 import com.example.filescanner.BLL.UserManager;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
 
 import java.util.List;
 
@@ -23,6 +27,9 @@ public class AdminDashboardController {
     @FXML private ComboBox<String> roleComboBox;
     @FXML private Label statusLabel;
     @FXML private Button createUserButton;
+    @FXML
+    private AnchorPane contentArea;
+
 
     private final UserManager userManager = new UserManager();
     private List<User> currentUsers;
@@ -45,6 +52,11 @@ public class AdminDashboardController {
     @FXML
     public void openProfiles() {
         SceneController.switchTo("profiles.fxml");
+    }
+
+    @FXML
+    private void openClients() {
+       SceneController.switchTo("clients.fxml");
     }
 
 
@@ -149,4 +161,6 @@ public class AdminDashboardController {
         SceneController.clearHistory();
         SceneController.switchTo("Login.fxml");
     }
+
+
 }
