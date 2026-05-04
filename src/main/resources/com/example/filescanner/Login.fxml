@@ -39,10 +39,5 @@
 
     <Button maxWidth="320" onAction="#onLoginClick" style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;                    -fx-font-weight: bold; -fx-font-size: 14px;                    -fx-background-radius: 6; -fx-padding: 10;                    -fx-cursor: hand;" text="Sign in" />
 
-    <!-- Dev hint box -->
-    <HBox alignment="CENTER_LEFT" maxWidth="320" spacing="8" style="-fx-padding: 8 12; -fx-background-color: #181825;              -fx-background-radius: 6; -fx-border-color: #313244;              -fx-border-radius: 6;">
-        <Label style="-fx-text-fill: #585b70; -fx-font-size: 11px;" text="Dev:" />
-        <Label style="-fx-text-fill: #6c7086; -fx-font-size: 11px;" text="user / user123" />
-    </HBox>
 
 </VBox>
