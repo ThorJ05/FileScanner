@@ -60,7 +60,7 @@ public class ProfileManager {
         if (p.getBrightness() < -255 || p.getBrightness() > 255)
             throw new IllegalArgumentException("Brightness must be between -255 and 255");
 
-        if (p.getContrast() < 0.1f || p.getContrast() > 10f)
+        if (p.getContrast() < 0.1f || p.getContrast() > 100f)
             throw new IllegalArgumentException("Contrast must be between 0.1 and 10");
     }
 }
