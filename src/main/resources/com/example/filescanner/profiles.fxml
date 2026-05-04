@@ -37,7 +37,7 @@
             <!-- LEFT: Editor -->
             <VBox spacing="12" prefWidth="420">
                 <HBox alignment="CENTER_LEFT">
-                    <Button text="Tilbage" onAction="#onBack"
+                    <Button text="Dashboard" onAction="#onBack"
                             style="-fx-background-color: transparent; -fx-text-fill: #89b4fa; -fx-padding: 6; -fx-cursor: hand;"/>
                 </HBox>
 
