@@ -23,7 +23,7 @@
                            -fx-alignment: center-left; -fx-padding: 14;
                            -fx-background-radius: 8; -fx-cursor: hand;"/>
 
-            <Button text="Profiler" maxWidth="Infinity" onAction="#openProfiles"
+            <Button text="Profiles" maxWidth="Infinity" onAction="#openProfiles"
                     style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
                            -fx-alignment: center-left; -fx-padding: 14;
                            -fx-background-radius: 8; -fx-cursor: hand;"/>

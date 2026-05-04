@@ -14,7 +14,7 @@
     <!-- LEFT: Table -->
     <left>
         <VBox spacing="10" style="-fx-padding: 20;">
-            <Label text="Profiler"
+            <Label text="Profiles"
                    style="-fx-font-size: 20px; -fx-text-fill: #cdd6f4;"/>
 
             <TableView fx:id="profileTable"
