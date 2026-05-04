@@ -121,14 +121,16 @@ public class ProfileRepository implements IProfileRepository {
         return false;
     }
 
+
+
     @Override
-    public boolean assignProfileToUser(int profileId, String userId) {
-        String sql = "INSERT INTO UserProfiles (UserId, ProfileId) VALUES (?, ?)";
+    public boolean assignProfileToClient(int clientId, int profileId) {
+        String sql = "INSERT INTO ClientProfiles (ClientId, ProfileId) VALUES (?, ?)";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, userId);
+            stmt.setInt(1, clientId);
             stmt.setInt(2, profileId);
 
             return stmt.executeUpdate() > 0;
@@ -141,20 +143,20 @@ public class ProfileRepository implements IProfileRepository {
     }
 
     @Override
-    public List<Profile> getProfilesForUser(String userId) {
+    public List<Profile> getProfilesForClient(int clientId) {
         List<Profile> list = new ArrayList<>();
 
         String sql = """
                 SELECT p.*
                 FROM Profiles p
-                JOIN UserProfiles up ON p.ProfileId = up.ProfileId
-                WHERE up.UserId = ?
+                JOIN ClientProfiles cp ON p.ProfileId = cp.ProfileId
+                WHERE cp.ClientId = ?
                 """;
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, userId);
+            stmt.setInt(1, clientId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -168,9 +170,7 @@ public class ProfileRepository implements IProfileRepository {
         return list;
     }
 
-    // ---------------------------
-    //  PRIVATE MAPPER
-    // ---------------------------
+
 
     private Profile mapRow(ResultSet rs) throws SQLException {
         return new Profile(

@@ -13,7 +13,7 @@ public class ProfileManager {
         this.repo = repo;
     }
 
-    //  PUBLIC BUSINESS METHODS
+
 
     public List<Profile> getAllProfiles() {
         return repo.getAll();
@@ -37,15 +37,21 @@ public class ProfileManager {
         return repo.delete(id);
     }
 
-    public boolean assignProfileToUser(int profileId, String userId) {
-        return repo.assignProfileToUser(profileId, userId);
+
+    //  CLIENT <-> PROFILE RELATION
+
+
+    public boolean assignProfileToClient(int clientId, int profileId) {
+        return repo.assignProfileToClient(clientId, profileId);
     }
 
-    public List<Profile> getProfilesForUser(String userId) {
-        return repo.getProfilesForUser(userId);
+    public List<Profile> getProfilesForClient(int clientId) {
+        return repo.getProfilesForClient(clientId);
     }
 
-    //  PRIVATE VALIDATION LOGICwq
+
+    //  VALIDATION
+
 
     private void validate(Profile p) {
         if (p == null)
@@ -60,7 +66,7 @@ public class ProfileManager {
         if (p.getBrightness() < -255 || p.getBrightness() > 255)
             throw new IllegalArgumentException("Brightness must be between -255 and 255");
 
-        if (p.getContrast() < 0.1f || p.getContrast() > 100f)
-            throw new IllegalArgumentException("Contrast must be between 0.1 and 10");
+        if (p.getContrast() < 1f || p.getContrast() > 100f)
+            throw new IllegalArgumentException("Contrast must be between 1 and 100");
     }
 }
