@@ -38,7 +38,7 @@ public class ClientController {
         // Assigned profiles column (simple, no lambdas)
         colAssignedProfiles.setCellValueFactory(cellData -> {
             Client client = cellData.getValue();
-            List<Profile> profiles = profileManager.getProfilesForClient(client.getId());
+            List<Profile> profiles = profileManager.getProfilesForUser(client.getId());
 
             String names = "";
             for (Profile p : profiles) {
@@ -85,7 +85,7 @@ public class ClientController {
             return;
         }
 
-        profileManager.assignProfileToClient(selectedClient.getId(), selectedProfile.getId());
+        profileManager.assignProfileToUser(selectedClient.getId(), selectedProfile.getId());
 
         loadClients();
     }

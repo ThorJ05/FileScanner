@@ -2,6 +2,7 @@ package com.example.filescanner.BLL;
 
 import com.example.filescanner.BEE.Profile;
 import com.example.filescanner.DAL.IProfileRepository;
+import com.example.filescanner.DAL.ProfileRepository;
 
 import java.util.List;
 
@@ -9,11 +10,13 @@ public class ProfileManager {
 
     private final IProfileRepository repo;
 
+    public ProfileManager() {
+        this.repo = new ProfileRepository();
+    }
+
     public ProfileManager(IProfileRepository repo) {
         this.repo = repo;
     }
-
-
 
     public List<Profile> getAllProfiles() {
         return repo.getAll();
@@ -37,36 +40,24 @@ public class ProfileManager {
         return repo.delete(id);
     }
 
-
-    //  CLIENT <-> PROFILE RELATION
-
-
-    public boolean assignProfileToClient(int clientId, int profileId) {
-        return repo.assignProfileToClient(clientId, profileId);
+    public boolean assignProfileToUser(int userId, int profileId) {
+        return repo.assignProfileToClient(userId, profileId);
     }
 
-    public List<Profile> getProfilesForClient(int clientId) {
-        return repo.getProfilesForClient(clientId);
+    public List<Profile> getProfilesForUser(int userId) {
+        return repo.getProfilesForClient(userId);
     }
-
-
-    //  VALIDATION
-
 
     private void validate(Profile p) {
         if (p == null)
             throw new IllegalArgumentException("Profile cannot be null");
-
         if (p.getName() == null || p.getName().isBlank())
             throw new IllegalArgumentException("Profile name cannot be empty");
-
         if (p.getRotation() < 0 || p.getRotation() > 360)
-            throw new IllegalArgumentException("Rotation must be between 0 and 360 degrees");
-
+            throw new IllegalArgumentException("Rotation must be between 0 and 360");
         if (p.getBrightness() < -255 || p.getBrightness() > 255)
             throw new IllegalArgumentException("Brightness must be between -255 and 255");
-
-        if (p.getContrast() < 1f || p.getContrast() > 100f)
-            throw new IllegalArgumentException("Contrast must be between 1 and 100");
+        if (p.getContrast() < 0.1f || p.getContrast() > 100f)
+            throw new IllegalArgumentException("Contrast must be between 0.1 and 100");
     }
 }
