@@ -1,118 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.filescanner.GUI.Controllers.UserDashboardController"
-            prefWidth="1100" prefHeight="700"
+            prefWidth="900" prefHeight="600"
             style="-fx-background-color: #1e1e2e;">
 
-    <!-- Sidebar -->
     <left>
-        <VBox spacing="12" prefWidth="220"
-              style="-fx-background-color: #181825; -fx-padding: 24;">
-
+        <VBox spacing="4" prefWidth="200"
+              style="-fx-background-color: #181825; -fx-padding: 20;">
             <Label text="FileScanner"
-                   style="-fx-font-size: 20px; -fx-font-weight: bold;
+                   style="-fx-font-size: 18px; -fx-font-weight: bold;
                           -fx-text-fill: #cdd6f4; -fx-padding: 0 0 20 0;"/>
-
             <Button text="Dashboard" maxWidth="Infinity" onAction="#onDashboard"
                     style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                           -fx-alignment: center-left; -fx-padding: 12;
+                           -fx-alignment: center-left; -fx-padding: 10;
                            -fx-background-radius: 6; -fx-cursor: hand;"/>
-
             <Region VBox.vgrow="ALWAYS"/>
 
             <Button text="Logout" maxWidth="Infinity" onAction="#onLogout"
                     style="-fx-background-color: transparent; -fx-text-fill: #f38ba8;
-                           -fx-alignment: center-left; -fx-padding: 12;
+                           -fx-alignment: center-left; -fx-padding: 10;
                            -fx-background-radius: 6; -fx-cursor: hand;"/>
         </VBox>
     </left>
 
-    <!-- Main content -->
     <center>
-        <HBox spacing="20" style="-fx-padding: 24;">
+        <VBox spacing="20" style="-fx-padding: 32;">
+            <Label fx:id="welcomeLabel" text="Welcome back!"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #cdd6f4;"/>
+            <Label text="Overview of your scanning activity"
+                   style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;"/>
 
-            <!-- Left: Controls + File list -->
-            <VBox spacing="16" prefWidth="300">
-
-                <Label text="Scanning"
-                       style="-fx-font-size: 24px; -fx-font-weight: bold;
-                              -fx-text-fill: #cdd6f4;"/>
-
-                <Label fx:id="welcomeLabel" text="Welcome back!"
-                       style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;"/>
-
-                <!-- Profile selection -->
-                <VBox spacing="8"
-                      style="-fx-background-color: #313244; -fx-padding: 16;
-                             -fx-background-radius: 8;">
-                    <Label text="Select Profile"
+            <HBox spacing="16">
+                <VBox style="-fx-background-color: #313244; -fx-padding: 20;
+                             -fx-background-radius: 8;" prefWidth="180">
+                    <Label text="Documents Today"
                            style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                    <ComboBox fx:id="profileComboBox" maxWidth="Infinity"
-                              promptText="Choose a Profile..."/>
-                    <Label fx:id="selectedProfileLabel" text="No profile selected"
-                           style="-fx-text-fill: #89b4fa; -fx-font-size: 12px;"/>
-                </VBox>
-
-                <!-- Stats -->
-                <VBox spacing="8"
-                      style="-fx-background-color: #313244; -fx-padding: 16;
-                             -fx-background-radius: 8;">
-                    <Label fx:id="sessionCountLabel" text="Scanned this session: 0"
-                           style="-fx-text-fill: #a6e3a1; -fx-font-size: 13px;
+                    <Label fx:id="docCountLabel" text="0"
+                           style="-fx-text-fill: #cdd6f4; -fx-font-size: 28px;
                                   -fx-font-weight: bold;"/>
-                    <Label fx:id="apiCountLabel" text="Available files in API: ..."
-                           style="-fx-text-fill: #89b4fa; -fx-font-size: 12px;"/>
                 </VBox>
-
-                <!-- Scan button -->
-                <Button fx:id="scanButton" text="Scan Next File"
-                        onAction="#onScan" maxWidth="Infinity"
-                        style="-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e;
-                               -fx-font-weight: bold; -fx-padding: 14;
-                               -fx-background-radius: 8; -fx-cursor: hand;
-                               -fx-font-size: 14px;"/>
-
-                <!-- Reset button -->
-                <Button text="Reset Session" onAction="#onReset" maxWidth="Infinity"
-                        style="-fx-background-color: #313244; -fx-text-fill: #f38ba8;
-                               -fx-font-weight: bold; -fx-padding: 12;
-                               -fx-background-radius: 8; -fx-cursor: hand;
-                               -fx-border-color: #f38ba8; -fx-border-radius: 8;"/>
-
-                <Label fx:id="statusLabel" text=""
-                       style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;
-                              -fx-wrap-text: true;"/>
-
-                <!-- File list -->
-                <Label text="Scanned Files"
-                       style="-fx-text-fill: #cdd6f4; -fx-font-size: 14px;
-                              -fx-font-weight: bold;"/>
-
-                <ListView fx:id="fileListView" VBox.vgrow="ALWAYS"
-                          style="-fx-background-color: #313244;
-                                 -fx-background-radius: 8;
-                                 -fx-border-color: #45475a;
-                                 -fx-border-radius: 8;"/>
-            </VBox>
-
-            <!-- Right: Image preview -->
-            <VBox spacing="12" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
-                <Label text="Preview"
-                       style="-fx-font-size: 18px; -fx-font-weight: bold;
-                              -fx-text-fill: #cdd6f4;"/>
-
-                <ImageView fx:id="imagePreview"
-                           fitWidth="700" fitHeight="580"
-                           preserveRatio="true"
-                           style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8,0,0,2);"/>
-            </VBox>
-
-        </HBox>
+                <VBox style="-fx-background-color: #313244; -fx-padding: 20;
+                             -fx-background-radius: 8;" prefWidth="180">
+                    <Label text="Files Scanned"
+                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                    <Label fx:id="fileCountLabel" text="0"
+                           style="-fx-text-fill: #cdd6f4; -fx-font-size: 28px;
+                                  -fx-font-weight: bold;"/>
+                </VBox>
+                <VBox style="-fx-background-color: #313244; -fx-padding: 20;
+                             -fx-background-radius: 8;" prefWidth="180">
+                    <Label text="Active Profile"
+                           style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
+                    <Label fx:id="activeProfileLabel" text="None"
+                           style="-fx-text-fill: #89b4fa; -fx-font-size: 18px;
+                                  -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+        </VBox>
     </center>
 
 </BorderPane>

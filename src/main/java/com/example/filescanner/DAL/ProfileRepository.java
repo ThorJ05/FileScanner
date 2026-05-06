@@ -12,7 +12,7 @@ public class ProfileRepository implements IProfileRepository {
     @Override
     public List<Profile> getAll() {
         List<Profile> list = new ArrayList<>();
-        String sql = "SELECT * FROM dbo.Profiles";
+        String sql = "SELECT * FROM Profiles";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -31,7 +31,7 @@ public class ProfileRepository implements IProfileRepository {
 
     @Override
     public Optional<Profile> findById(int id) {
-        String sql = "SELECT * FROM dbo.Profiles WHERE ProfileId = ?";
+        String sql = "SELECT * FROM Profiles WHERE ProfileId = ?";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -52,8 +52,10 @@ public class ProfileRepository implements IProfileRepository {
 
     @Override
     public boolean insert(Profile p) {
-        String sql = "INSERT INTO dbo.Profiles (Name, Rotation, Brightness, Contrast, SplitOnBarcode, ExportFormat) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = """
+                INSERT INTO Profiles (Name, Rotation, Brightness, Contrast, SplitOnBarcode, ExportFormat)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """;
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -76,8 +78,11 @@ public class ProfileRepository implements IProfileRepository {
 
     @Override
     public boolean update(Profile p) {
-        String sql = "UPDATE dbo.Profiles SET Name = ?, Rotation = ?, Brightness = ?, " +
-                "Contrast = ?, SplitOnBarcode = ?, ExportFormat = ? WHERE ProfileId = ?";
+        String sql = """
+                UPDATE Profiles
+                SET Name = ?, Rotation = ?, Brightness = ?, Contrast = ?, SplitOnBarcode = ?, ExportFormat = ?
+                WHERE ProfileId = ?
+                """;
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -101,7 +106,7 @@ public class ProfileRepository implements IProfileRepository {
 
     @Override
     public boolean delete(int id) {
-        String sql = "DELETE FROM dbo.Profiles WHERE ProfileId = ?";
+        String sql = "DELETE FROM Profiles WHERE ProfileId = ?";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -116,15 +121,18 @@ public class ProfileRepository implements IProfileRepository {
         return false;
     }
 
+
+
     @Override
     public boolean assignProfileToClient(int clientId, int profileId) {
-        String sql = "INSERT INTO dbo.ProfileUser (UserId, ProfileId) VALUES (?, ?)";
+        String sql = "INSERT INTO ClientProfiles (ClientId, ProfileId) VALUES (?, ?)";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, clientId);
             stmt.setInt(2, profileId);
+
             return stmt.executeUpdate() > 0;
 
         } catch (Exception e) {
@@ -135,19 +143,20 @@ public class ProfileRepository implements IProfileRepository {
     }
 
     @Override
-    public List<Profile> getProfilesForClient(int userId) {
+    public List<Profile> getProfilesForClient(int clientId) {
         List<Profile> list = new ArrayList<>();
+
         String sql = """
-                SELECT p.*
-                FROM dbo.Profiles p
-                JOIN dbo.ProfileUser pu ON p.ProfileId = pu.ProfileId
-                WHERE pu.UserId = ?
-                """;
+        SELECT p.*
+        FROM Profiles p
+        JOIN ClientProfiles cp ON p.ProfileId = cp.ProfileId
+        WHERE cp.ClientId = ?
+        """;
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, userId);
+            stmt.setInt(1, clientId);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -160,6 +169,10 @@ public class ProfileRepository implements IProfileRepository {
 
         return list;
     }
+
+
+
+
 
     private Profile mapRow(ResultSet rs) throws SQLException {
         return new Profile(

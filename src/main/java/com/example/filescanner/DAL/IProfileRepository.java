@@ -13,7 +13,8 @@ public interface IProfileRepository {
     boolean update(Profile profile);
     boolean delete(int id);
 
-    // USER ↔ PROFILE
-    boolean assignProfileToClient(int userId, int profileId);
-    List<Profile> getProfilesForClient(int userId);
+    // CLIENT ↔ PROFILE
+    boolean assignProfileToClient(int clientId, int profileId);
+    List<Profile> getProfilesForClient(int clientId);
 }
+

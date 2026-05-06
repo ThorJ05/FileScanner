@@ -30,13 +30,6 @@
             <version>21.0.6</version>
         </dependency>
 
-        <!-- JavaFX Swing bridge (needed for SwingFXUtils) -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>21.0.6</version>
-        </dependency>
-
         <!-- BCrypt password hashing -->
         <dependency>
             <groupId>org.mindrot</groupId>
@@ -49,13 +42,6 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>12.6.1.jre11</version>
-        </dependency>
-
-        <!-- TIFF image support -->
-        <dependency>
-            <groupId>com.twelvemonkeys.imageio</groupId>
-            <artifactId>imageio-tiff</artifactId>
-            <version>3.10.1</version>
         </dependency>
 
         <!-- JUnit 5 -->
