@@ -31,6 +31,15 @@ public class AdminDashboardController {
 
     private final UserManager userManager = new UserManager();
     private List<User> currentUsers;
+    @FXML
+    private void openProfiles() {
+        SceneController.switchTo("profiles.fxml");
+    }
+
+    @FXML
+    private void openClients() {
+        SceneController.switchTo("clients.fxml");
+    }
 
     @FXML
     public void initialize() {
