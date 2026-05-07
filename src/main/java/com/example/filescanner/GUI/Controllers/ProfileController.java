@@ -8,6 +8,8 @@ import com.example.filescanner.DAL.ProfileRepository;
 import com.example.filescanner.Util.ImageLoader;
 import com.example.filescanner.GUI.helpers.SliderBinder;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -33,8 +35,13 @@ public class ProfileController {
     @FXML private ComboBox<String> comboFormat;
     @FXML private ImageView imgPreview;
 
-    private final ProfileManager manager = new ProfileManager(new ProfileRepository());
+    // ⭐ NEW: Search field
+    @FXML private TextField searchField;
 
+    // ⭐ NEW: Filtered list for searching
+    private FilteredList<Profile> filteredProfiles;
+
+    private final ProfileManager manager = new ProfileManager(new ProfileRepository());
     private final PreviewService previewService = new PreviewService();
 
     private BufferedImage sampleImage;
@@ -45,6 +52,7 @@ public class ProfileController {
         setupTable();
         loadProfiles();
         setupBindings();
+        setupSearchFilter();   // ⭐ NEW
     }
 
     private void setupTable() {
@@ -68,8 +76,34 @@ public class ProfileController {
         comboFormat.getItems().addAll("TIFF", "PNG", "JPG");
     }
 
+    // ⭐ UPDATED: Now uses FilteredList
     private void loadProfiles() {
-        profileTable.getItems().setAll(manager.getAllProfiles());
+        filteredProfiles = new FilteredList<>(
+                FXCollections.observableArrayList(manager.getAllProfiles()),
+                p -> true
+        );
+
+        profileTable.setItems(filteredProfiles);
+    }
+
+    // ⭐ NEW: Search logic
+    private void setupSearchFilter() {
+        if (searchField == null) return; // safety if FXML missing
+
+        searchField.textProperty().addListener((obs, oldValue, newValue) -> {
+            String filter = newValue.toLowerCase().trim();
+
+            filteredProfiles.setPredicate(profile -> {
+                if (filter.isEmpty()) return true;
+
+                return profile.getName().toLowerCase().contains(filter)
+                        || String.valueOf(profile.getRotation()).contains(filter)
+                        || profile.getExportFormat().toLowerCase().contains(filter)
+                        || String.valueOf(profile.getBrightness()).contains(filter)
+                        || String.valueOf(profile.getContrast()).contains(filter)
+                        || String.valueOf(profile.isSplitOnBarcode()).toLowerCase().contains(filter);
+            });
+        });
     }
 
     private void loadProfileIntoFields(Profile p) {
@@ -130,7 +164,6 @@ public class ProfileController {
         }
     }
 
-
     private void updatePreview() {
         if (sampleImage == null) return;
 
@@ -148,7 +181,6 @@ public class ProfileController {
         }
         imgPreview.setImage(previewService.generatePreview(sampleImage, p));
     }
-
 
     private void clearFields() {
         txtName.clear();

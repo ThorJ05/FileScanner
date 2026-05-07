@@ -17,6 +17,18 @@
             <Label text="Profiles"
                    style="-fx-font-size: 20px; -fx-text-fill: #cdd6f4;"/>
 
+            <!-- ⭐ SEARCH BAR -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Search:" style="-fx-text-fill: #cdd6f4;"/>
+                <TextField fx:id="searchField"
+                           promptText="Search profiles..."
+                           style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
+                                  -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
+                                  -fx-border-radius: 8; -fx-background-radius: 8;
+                                  -fx-padding: 6;"/>
+            </HBox>
+
+            <!-- ⭐ PROFILES TABLE -->
             <TableView fx:id="profileTable"
                        style="-fx-background-color: #313244; -fx-border-color: #45475a;">
                 <columns>
@@ -102,7 +114,6 @@
                            style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 6,0,0,2);
                                   -fx-background-color: #121212;"/>
 
-                <!-- FIXED BUTTON -->
                 <Button fx:id="btnLoadSample"
                         text="Load sample image"
                         onAction="#loadSampleImage"
