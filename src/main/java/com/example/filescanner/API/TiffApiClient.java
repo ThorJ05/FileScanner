@@ -9,7 +9,8 @@ import java.net.URL;
 public class TiffApiClient {
 
     private static final String BASE_URL =
-            "https://studenttiffapi-production.up.railway.app";
+            "https://studentiffapi-production.up.railway.app";
+
 
     public BufferedImage fetchRandomTiff() throws Exception {
         URL url = new URL(BASE_URL + "/getRandomFile");
