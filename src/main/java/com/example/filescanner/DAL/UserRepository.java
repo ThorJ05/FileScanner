@@ -20,12 +20,11 @@ public class UserRepository implements IUserRepository {
 
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
+
             if (rs.next()) {
                 User user = new BasicUser(
-                        String.valueOf(rs.getInt("UserId")),  // fix: int to String
+                        String.valueOf(rs.getInt("UserId")),
                         rs.getString("UserName"),
-                        rs.getString("LastName"),
-                        rs.getString("Email"),
                         rs.getString("PasswordHash"),
                         UserRole.valueOf(rs.getString("Role"))
                 );
@@ -39,56 +38,17 @@ public class UserRepository implements IUserRepository {
         return Optional.empty();
     }
 
-    public boolean emailExists(String email) {
-        String sql = "SELECT COUNT(*) FROM Users WHERE Email = ?";
-
-        try (Connection conn = DBConnector.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
     @Override
     public void createUser(User user) {
-        String sql = "INSERT INTO Users (UserName, PasswordHash, Role, FirstName, LastName, Email) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = DBConnector.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            stmt.setString(1, user.getFirstName());
-            stmt.setString(2, user.getPasswordHash());
-            stmt.setString(3, user.getRole());
-            stmt.setString(4, user.getFirstName());
-            stmt.setString(5, user.getLastName());
-            stmt.setString(6, user.getEmail());
-
-            stmt.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void updatePassword(String userId, String hashedPassword) {
-        String sql = "UPDATE Users SET PasswordHash = ? WHERE UserId = ?";
+        String sql = "INSERT INTO Users (UserName, PasswordHash, Role) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, hashedPassword);
-            stmt.setString(2, userId);
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getPassword());
+            stmt.setString(3, user.getRole().name());
+
             stmt.executeUpdate();
 
         } catch (Exception e) {
@@ -122,10 +82,8 @@ public class UserRepository implements IUserRepository {
 
             while (rs.next()) {
                 list.add(new BasicUser(
-                        String.valueOf(rs.getInt("UserId")),  // fix: int to String
+                        String.valueOf(rs.getInt("UserId")),
                         rs.getString("UserName"),
-                        rs.getString("LastName"),
-                        rs.getString("Email"),
                         rs.getString("PasswordHash"),
                         UserRole.valueOf(rs.getString("Role"))
                 ));
@@ -136,5 +94,11 @@ public class UserRepository implements IUserRepository {
         }
 
         return list;
+    }@Override
+    public boolean emailExists(String email) {
+        return false;
+    }@Override
+    public void updatePassword(String userId, String hashedPassword) {
+
     }
 }

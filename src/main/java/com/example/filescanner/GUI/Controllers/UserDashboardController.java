@@ -5,8 +5,6 @@ import com.example.filescanner.BEE.ScannedFile;
 import com.example.filescanner.BEE.User;
 import com.example.filescanner.BLL.ImageService;
 import com.example.filescanner.BLL.ScanManager;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -17,7 +15,7 @@ import java.util.List;
 
 public class UserDashboardController {
 
-    private final ScanManager scanManager = new ScanManager();
+    private ScanManager scanManager; // must be created after user is known
     private final ImageService imageService = new ImageService();
 
     // Dashboard labels
@@ -31,7 +29,7 @@ public class UserDashboardController {
     @FXML private Label statusLabel;
     @FXML private Label sessionCountLabel;
 
-    // NEW UI
+    // Lists
     @FXML private ListView<String> documentListView;
     @FXML private ListView<String> pageListView;
 
@@ -40,6 +38,14 @@ public class UserDashboardController {
         loadUserInfo();
         loadStats();
 
+        try {
+            int userId = Integer.parseInt(SceneController.getCurrentUser().getId());
+            scanManager = new ScanManager(userId);   // IMPORTANT FIX
+        } catch (Exception e) {
+            e.printStackTrace();
+            statusLabel.setText("Failed to initialize ScanManager.");
+        }
+
         setupDocumentClick();
         setupPageClick();
     }
@@ -47,7 +53,7 @@ public class UserDashboardController {
     private void loadUserInfo() {
         User user = SceneController.getCurrentUser();
         if (user != null) {
-            welcomeLabel.setText("Welcome back, " + user.getFirstName() + "!");
+            welcomeLabel.setText("Welcome back, " + user.getUsername() + "!");
         } else {
             welcomeLabel.setText("Welcome back!");
         }
@@ -131,12 +137,7 @@ public class UserDashboardController {
     private void updateDocumentList() {
         documentListView.getItems().clear();
 
-        List<Document> docs = new ArrayList<>(scanManager.getCurrentBox().getDocuments());
-
-        // Include active document if not empty
-        if (!scanManager.getCurrentDocument().getPages().isEmpty()) {
-            docs.add(scanManager.getCurrentDocument());
-        }
+        List<Document> docs = new ArrayList<>(scanManager.getAllDocuments());
 
         int index = 1;
         for (Document doc : docs) {
@@ -151,11 +152,7 @@ public class UserDashboardController {
             if (newVal == null) return;
 
             int docIndex = documentListView.getSelectionModel().getSelectedIndex();
-
-            List<Document> docs = new ArrayList<>(scanManager.getCurrentBox().getDocuments());
-            if (!scanManager.getCurrentDocument().getPages().isEmpty()) {
-                docs.add(scanManager.getCurrentDocument());
-            }
+            List<Document> docs = scanManager.getAllDocuments();
 
             Document selectedDoc = docs.get(docIndex);
 
@@ -173,12 +170,9 @@ public class UserDashboardController {
             int docIndex = documentListView.getSelectionModel().getSelectedIndex();
             int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
 
-            List<Document> docs = new ArrayList<>(scanManager.getCurrentBox().getDocuments());
-            if (!scanManager.getCurrentDocument().getPages().isEmpty()) {
-                docs.add(scanManager.getCurrentDocument());
-            }
-
+            List<Document> docs = scanManager.getAllDocuments();
             Document selectedDoc = docs.get(docIndex);
+
             ScannedFile selectedPage = selectedDoc.getPages().get(pageIndex);
 
             imagePreview.setImage(imageService.toFxImage(selectedPage.getImage()));

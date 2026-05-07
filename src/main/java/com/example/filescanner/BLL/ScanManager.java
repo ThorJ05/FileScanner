@@ -1,7 +1,13 @@
 package com.example.filescanner.BLL;
 
 import com.example.filescanner.API.TiffApiClient;
-import com.example.filescanner.BEE.*;
+import com.example.filescanner.BEE.Box;
+import com.example.filescanner.BEE.Document;
+import com.example.filescanner.BEE.ScannedFile;
+import com.example.filescanner.DAL.BoxRepository;
+import com.example.filescanner.DAL.DocumentRepository;
+import com.example.filescanner.DAL.FileRepository;
+import com.example.filescanner.DAL.PageRepository;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -12,55 +18,73 @@ public class ScanManager {
     private final TiffApiClient api = new TiffApiClient();
     private final BarcodeService barcodeService = new BarcodeService();
 
-    private final Box currentBox = new Box();
-    private Document currentDocument = new Document();
+    private final BoxRepository boxRepo = new BoxRepository();
+    private final DocumentRepository docRepo = new DocumentRepository();
+    private final PageRepository pageRepo = new PageRepository();
+    private final FileRepository fileRepo = new FileRepository();
 
-    private int sessionCount = 0;
+    private Box currentBox;
+    private Document currentDocument;
 
+    private int sessionScanCount = 0;
+    private int totalFileCount = 0;
+
+    public ScanManager(int userId) throws Exception {
+        int boxId = boxRepo.createBox(userId);
+        currentBox = new Box(boxId, userId);
+        currentDocument = new Document(-1, boxId, null); // midlertidigt dokument
+    }
+
+    // -------------------------
+    // MAIN SCAN METHOD
+    // -------------------------
     public List<ScannedFile> scanNext() throws Exception {
         List<ScannedFile> result = new ArrayList<>();
 
         BufferedImage img = api.fetchRandomTiff();
         String barcode = barcodeService.readBarcode(img);
 
-        ScannedFile file = new ScannedFile("Page " + (sessionCount + 1), img, barcode);
-        sessionCount++;
+        sessionScanCount++;
+        totalFileCount++;
 
-        // Hvis der er barcode → afslut dokument og start nyt
-        if (file.hasBarcode()) {
-            if (!currentDocument.getPages().isEmpty()) {
-                currentBox.addDocument(currentDocument);
-            }
-            currentDocument = new Document();
+        // Hvis barcode → nyt dokument
+        if (barcode != null) {
+            int newDocId = docRepo.createDocument(currentBox.getId(), barcode);
+            currentDocument = new Document(newDocId, currentBox.getId(), barcode);
+            currentBox.addDocument(currentDocument);
         }
 
-        currentDocument.addPage(file);
-        result.add(file);
+        // Hvis ingen dokument endnu → opret et
+        if (currentDocument.getId() == -1) {
+            int newDocId = docRepo.createDocument(currentBox.getId(), null);
+            currentDocument = new Document(newDocId, currentBox.getId(), null);
+            currentBox.addDocument(currentDocument);
+        }
 
+        // Gem TIFF på disk
+        String filePath = fileRepo.saveTiff(img, currentDocument.getId(), currentDocument.getPages().size() + 1);
+
+        // Gem metadata i DB
+        pageRepo.createPage(currentDocument.getId(), currentDocument.getPages().size() + 1, filePath);
+
+        // Tilføj til RAM-model
+        ScannedFile scanned = new ScannedFile("Page " + totalFileCount, img, barcode, filePath);
+        currentDocument.addPage(scanned);
+
+        result.add(scanned);
         return result;
     }
 
-    // Returnerer ALLE dokumenter (inkl. det aktive)
-    public List<Document> getAllDocuments() {
-        List<Document> docs = new ArrayList<>(currentBox.getDocuments());
+    // -------------------------
+    // GETTERS FOR CONTROLLER
+    // -------------------------
 
-        if (!currentDocument.getPages().isEmpty()) {
-            docs.add(currentDocument);
-        }
-
-        return docs;
+    public int getTotalFileCount() {
+        return totalFileCount;
     }
 
     public int getSessionScanCount() {
-        return sessionCount;
-    }
-
-    public int getTotalFileCount() {
-        return currentBox.getDocuments()
-                .stream()
-                .mapToInt(doc -> doc.getPages().size())
-                .sum()
-                + currentDocument.getPages().size();
+        return sessionScanCount;
     }
 
     public Box getCurrentBox() {
@@ -71,14 +95,18 @@ public class ScanManager {
         return currentDocument;
     }
 
-    public void reset() {
-        // Tilføj sidste dokument hvis det ikke er tomt
-        if (!currentDocument.getPages().isEmpty()) {
-            currentBox.addDocument(currentDocument);
-        }
+    public List<Document> getAllDocuments() {
+        return currentBox.getDocuments();
+    }
 
-        sessionCount = 0;
-        currentDocument = new Document();
-        currentBox.getDocuments().clear();
+    // -------------------------
+    // RESET
+    // -------------------------
+
+    public void reset() {
+        currentBox.clearDocuments();
+        currentDocument = new Document(-1, currentBox.getId(), null);
+        sessionScanCount = 0;
+        totalFileCount = 0;
     }
 }

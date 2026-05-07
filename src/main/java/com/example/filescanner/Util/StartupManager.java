@@ -8,14 +8,7 @@ import com.example.filescanner.BLL.UserManager;
  */
 public final class StartupManager {
 
-    private StartupManager() {}
-
     public static void runMigrations() {
-        try {
-            new UserManager().rehashAllPlainTextPasswords();
-        } catch (Exception e) {
-            System.err.println("Startup migration failed — continuing startup.");
-            e.printStackTrace();
-        }
+        // No migrations needed anymore
     }
 }

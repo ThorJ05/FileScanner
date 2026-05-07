@@ -1,42 +1,28 @@
 package com.example.filescanner.BEE;
 
-import com.example.filescanner.Util.PasswordUtil;
+import org.mindrot.jbcrypt.BCrypt;
 
 public abstract class User {
 
     private final String id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String password;
+    private String username;
+    private String password; // hashed password
     private final UserRole role;
 
-    protected User(String id, String firstName, String lastName, String email, String password, UserRole role) {
+    protected User(String id, String username, String password, UserRole role) {
         this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
+        this.username = username;
+        this.password = password; // already hashed from DB
         this.role = role;
     }
 
-    // Getters
     public String getId() { return id; }
-    public String getFirstName() { return firstName; }
-    public String getLastName() { return lastName; }
-    public String getEmail() { return email; }
-    public String getRole() { return role.toString(); }
-    // Returns the stored password hash. Prefer using PasswordUtil for checks.
-    public String getPasswordHash() { return password; }
-    // Backwards-compatible username accessor (preserves existing behaviour)
-    public String getUsername() { return firstName; }
+    public String getUsername() { return username; }
+    public String getPassword() { return password; }
+    public UserRole getRole() { return role; }
 
-    // Setters
-    public void setFirstName(String fn)         { this.firstName = fn; }
-    public void setLastName(String ln)          { this.lastName = ln; }
-    public void setEmail(String em)             { this.email = em; }
-    public void setPassword(String pw)          { this.password = pw; }
 
-    // Delegates to PasswordUtil for verification
-    public boolean checkPassword(String pw)     { return PasswordUtil.checkPassword(pw, this.password); }
+    public boolean checkPassword(String plainPassword) {
+        return BCrypt.checkpw(plainPassword, this.password);
+    }
 }

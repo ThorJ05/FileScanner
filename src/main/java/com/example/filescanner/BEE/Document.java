@@ -4,13 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Document {
-    private final List<ScannedFile> pages = new ArrayList<>();
 
-    public void addPage(ScannedFile file) {
-        pages.add(file);
+    private int id;
+    private int boxId;
+    private String barcode;
+    private List<ScannedFile> pages = new ArrayList<>();
+
+    public Document(int id, int boxId, String barcode) {
+        this.id = id;
+        this.boxId = boxId;
+        this.barcode = barcode;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getBoxId() {
+        return boxId;
+    }
+
+    public String getBarcode() {
+        return barcode;
     }
 
     public List<ScannedFile> getPages() {
         return pages;
+    }
+
+    public void addPage(ScannedFile page) {
+        pages.add(page);
     }
 }

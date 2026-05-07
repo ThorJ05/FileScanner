@@ -1,12 +1,12 @@
 package com.example.filescanner.GUI.Controllers;
 
 import com.example.filescanner.BEE.User;
+import com.example.filescanner.BEE.UserRole;
 import com.example.filescanner.BLL.LoginManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 
 import java.util.Optional;
 
@@ -26,8 +26,7 @@ public class LoginController {
     private void setupArrowNavigation() {
         usernameField.setOnKeyPressed(e -> {
             switch (e.getCode()) {
-                case DOWN -> passwordField.requestFocus();
-                case ENTER -> passwordField.requestFocus();
+                case DOWN, ENTER -> passwordField.requestFocus();
             }
         });
 
@@ -38,7 +37,6 @@ public class LoginController {
             }
         });
     }
-
 
     @FXML
     private void onLoginClick() {
@@ -60,7 +58,8 @@ public class LoginController {
         User user = userOpt.get();
         SceneController.setCurrentUser(user);
 
-        if (user.getRole().equalsIgnoreCase("ADMIN")) {
+
+        if (user.getRole() == UserRole.ADMIN) {
             SceneController.switchTo("AdminDashboard.fxml");
         } else {
             SceneController.switchTo("UserDashboard.fxml");

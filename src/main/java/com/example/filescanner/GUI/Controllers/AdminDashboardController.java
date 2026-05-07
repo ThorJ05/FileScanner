@@ -4,10 +4,7 @@ import com.example.filescanner.BEE.User;
 import com.example.filescanner.BEE.UserRole;
 import com.example.filescanner.BLL.UserManager;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -19,17 +16,18 @@ public class AdminDashboardController {
 
     @FXML private Label userCountLabel;
     @FXML private ListView<String> userListView;
+
+    @FXML private TextField usernameField;
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
     @FXML private TextField companyField;
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
+
     @FXML private ComboBox<String> roleComboBox;
     @FXML private Label statusLabel;
     @FXML private Button createUserButton;
-    @FXML
-    private AnchorPane contentArea;
-
+    @FXML private AnchorPane contentArea;
 
     private final UserManager userManager = new UserManager();
     private List<User> currentUsers;
@@ -40,7 +38,6 @@ public class AdminDashboardController {
         roleComboBox.getSelectionModel().selectFirst();
         loadUsers();
 
-        // Wait until the Scene is attached before adding keyboard shortcuts
         userListView.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 setupKeyboardShortcuts(newScene);
@@ -48,17 +45,6 @@ public class AdminDashboardController {
             }
         });
     }
-
-    @FXML
-    public void openProfiles() {
-        SceneController.switchTo("profiles.fxml");
-    }
-
-    @FXML
-    private void openClients() {
-       SceneController.switchTo("clients.fxml");
-    }
-
 
     private void setupKeyboardShortcuts(Scene scene) {
         scene.setOnKeyPressed(event -> {
@@ -71,11 +57,32 @@ public class AdminDashboardController {
     }
 
     private void setupArrowNavigation() {
-        firstNameField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.DOWN) lastNameField.requestFocus(); });
-        lastNameField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.UP) firstNameField.requestFocus(); else if (e.getCode() == KeyCode.DOWN) companyField.requestFocus(); });
-        companyField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.UP) lastNameField.requestFocus(); else if (e.getCode() == KeyCode.DOWN) emailField.requestFocus(); });
-        emailField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.UP) companyField.requestFocus(); else if (e.getCode() == KeyCode.DOWN) passwordField.requestFocus(); });
-        passwordField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.UP) emailField.requestFocus(); else if (e.getCode() == KeyCode.DOWN) roleComboBox.requestFocus(); });
+        usernameField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.DOWN) firstNameField.requestFocus(); });
+
+        firstNameField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.UP) usernameField.requestFocus();
+            else if (e.getCode() == KeyCode.DOWN) lastNameField.requestFocus();
+        });
+
+        lastNameField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.UP) firstNameField.requestFocus();
+            else if (e.getCode() == KeyCode.DOWN) companyField.requestFocus();
+        });
+
+        companyField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.UP) lastNameField.requestFocus();
+            else if (e.getCode() == KeyCode.DOWN) emailField.requestFocus();
+        });
+
+        emailField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.UP) companyField.requestFocus();
+            else if (e.getCode() == KeyCode.DOWN) passwordField.requestFocus();
+        });
+
+        passwordField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.UP) emailField.requestFocus();
+            else if (e.getCode() == KeyCode.DOWN) roleComboBox.requestFocus();
+        });
 
         roleComboBox.setOnKeyPressed(e -> {
             switch (e.getCode()) {
@@ -92,34 +99,34 @@ public class AdminDashboardController {
 
         userListView.setItems(FXCollections.observableArrayList(
                 currentUsers.stream()
-                        .map(u -> u.getFirstName() + " " + u.getLastName() + " (" + u.getRole() + ")")
+                        .map(u -> u.getUsername() + " (" + u.getRole() + ")")
                         .toList()
         ));
     }
 
     @FXML
     private void onCreateUser() {
-        String username = firstNameField.getText().trim();  // username
+        String username = usernameField.getText().trim();
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();
+        String company = companyField.getText().trim();
         String email = emailField.getText().trim();
         String password = passwordField.getText();
         String roleStr = roleComboBox.getValue();
 
-        if (username.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            statusLabel.setText("Please fill in all fields.");
+        if (username.isEmpty() || password.isEmpty()) {
+            statusLabel.setText("Username and password are required.");
             return;
         }
 
         UserRole role = roleStr.equals("ADMIN") ? UserRole.ADMIN : UserRole.USER;
 
-        userManager.createUser(username, firstName, lastName, email, password, role);
+        userManager.createUser(username, password, role);
 
         statusLabel.setText("User created successfully.");
         clearFields();
         loadUsers();
     }
-
 
     @FXML
     private void onDeleteUser() {
@@ -137,6 +144,7 @@ public class AdminDashboardController {
     }
 
     private void clearFields() {
+        usernameField.clear();
         firstNameField.clear();
         lastNameField.clear();
         companyField.clear();
@@ -146,9 +154,7 @@ public class AdminDashboardController {
     }
 
     @FXML
-    private void onDashboard() {
-        // Future dashboard navigation
-    }
+    private void onDashboard() {}
 
     @FXML
     private void onBack() {
@@ -161,6 +167,4 @@ public class AdminDashboardController {
         SceneController.clearHistory();
         SceneController.switchTo("Login.fxml");
     }
-
-
 }

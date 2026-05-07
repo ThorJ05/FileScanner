@@ -7,7 +7,7 @@ public class ScannedFile {
     private final BufferedImage image;
     private final String barcode; // null hvis ingen barcode
 
-    public ScannedFile(String label, BufferedImage image, String barcode) {
+    public ScannedFile(String label, BufferedImage image, String barcode, String filePath) {
         this.label = label;
         this.image = image;
         this.barcode = barcode;
