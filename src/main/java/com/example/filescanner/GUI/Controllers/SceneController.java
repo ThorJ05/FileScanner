@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -15,7 +15,6 @@ public class SceneController {
     private static Stage mainStage;
     private static User currentUser;
 
-    // History of visited FXML filenames (most recent on top)
     private static final Deque<String> history = new ArrayDeque<>();
     private static String currentFxml;
 
@@ -41,32 +40,33 @@ public class SceneController {
                 history.push(currentFxml);
             }
 
-            System.out.println("Switching to FXML: " + fxmlFile);
-
-            java.net.URL resource = SceneController.class.getResource("/com/example/filescanner/" + fxmlFile);
+            URL resource = SceneController.class.getResource("/com/example/filescanner/" + fxmlFile);
             if (resource == null) {
-                System.err.println("FXML resource not found: " + fxmlFile + " (checked /com/example/filescanner/)");
+                System.err.println("FXML not found: " + fxmlFile);
                 return;
             }
 
-            Parent root = FXMLLoader.load(resource);
+            // ⭐ KORREKT LOADING
+            FXMLLoader loader = new FXMLLoader(resource);
+            Parent root = loader.load();
+
             mainStage.setScene(new Scene(root));
             mainStage.show();
+
             currentFxml = fxmlFile;
+
         } catch (Exception e) {
-            System.err.println("Failed to load scene: " + fxmlFile + "; see stacktrace");
+            System.err.println("Failed to load scene: " + fxmlFile);
             e.printStackTrace();
         }
     }
 
-    // Go back to the previous scene if any
     public static void goBack() {
         if (history.isEmpty()) return;
         String previous = history.pop();
         loadScene(previous, false);
     }
 
-    // Clear navigation history (useful on logout)
     public static void clearHistory() {
         history.clear();
         currentFxml = null;

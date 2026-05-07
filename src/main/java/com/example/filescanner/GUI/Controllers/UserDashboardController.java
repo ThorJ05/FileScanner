@@ -15,7 +15,7 @@ import java.util.List;
 
 public class UserDashboardController {
 
-    private ScanManager scanManager; // must be created after user is known
+    private ScanManager scanManager; // laves efter user er kendt
     private final ImageService imageService = new ImageService();
 
     // Dashboard labels
@@ -35,15 +35,31 @@ public class UserDashboardController {
 
     @FXML
     public void initialize() {
+        System.out.println("UserDashboardController.initialize() called");
+
+        User user = SceneController.getCurrentUser();
+
+        if (user == null) {
+            System.out.println("ERROR: currentUser is NULL in UserDashboardController");
+            if (statusLabel != null) {
+                statusLabel.setText("No user logged in.");
+            }
+            return; // meget vigtigt – ellers prøver vi at lave ScanManager uden user
+        }
+
         loadUserInfo();
         loadStats();
 
         try {
-            int userId = Integer.parseInt(SceneController.getCurrentUser().getId());
-            scanManager = new ScanManager(userId);   // IMPORTANT FIX
+            int userId = Integer.parseInt(user.getId());
+            scanManager = new ScanManager(userId);
+            System.out.println("ScanManager created for userId = " + userId);
         } catch (Exception e) {
             e.printStackTrace();
-            statusLabel.setText("Failed to initialize ScanManager.");
+            if (statusLabel != null) {
+                statusLabel.setText("Failed to initialize ScanManager.");
+            }
+            // vi lader scanManager være null – onScan/onReset tjekker for det
         }
 
         setupDocumentClick();
@@ -54,15 +70,17 @@ public class UserDashboardController {
         User user = SceneController.getCurrentUser();
         if (user != null) {
             welcomeLabel.setText("Welcome back, " + user.getUsername() + "!");
+            activeProfileLabel.setText(user.getUsername());
         } else {
             welcomeLabel.setText("Welcome back!");
+            activeProfileLabel.setText("None");
         }
     }
 
     private void loadStats() {
         docCountLabel.setText("0");
         fileCountLabel.setText("0");
-        activeProfileLabel.setText("None");
+        sessionCountLabel.setText("Scanned this session: 0");
     }
 
     @FXML
@@ -84,10 +102,16 @@ public class UserDashboardController {
 
     @FXML
     private void onScan() {
+        if (scanManager == null) {
+            statusLabel.setText("Scanner not ready (no ScanManager).");
+            System.out.println("onScan() called but scanManager is null");
+            return;
+        }
+
         try {
             List<ScannedFile> newFiles = scanManager.scanNext();
 
-            if (newFiles.isEmpty()) {
+            if (newFiles == null || newFiles.isEmpty()) {
                 statusLabel.setText("No files scanned.");
                 return;
             }
@@ -118,6 +142,12 @@ public class UserDashboardController {
 
     @FXML
     private void onReset() {
+        if (scanManager == null) {
+            statusLabel.setText("Scanner not ready (no ScanManager).");
+            System.out.println("onReset() called but scanManager is null");
+            return;
+        }
+
         scanManager.reset();
         documentListView.getItems().clear();
         pageListView.getItems().clear();
@@ -137,6 +167,11 @@ public class UserDashboardController {
     private void updateDocumentList() {
         documentListView.getItems().clear();
 
+        if (scanManager == null) {
+            docCountLabel.setText("0");
+            return;
+        }
+
         List<Document> docs = new ArrayList<>(scanManager.getAllDocuments());
 
         int index = 1;
@@ -150,9 +185,11 @@ public class UserDashboardController {
     private void setupDocumentClick() {
         documentListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null) return;
+            if (scanManager == null) return;
 
             int docIndex = documentListView.getSelectionModel().getSelectedIndex();
             List<Document> docs = scanManager.getAllDocuments();
+            if (docIndex < 0 || docIndex >= docs.size()) return;
 
             Document selectedDoc = docs.get(docIndex);
 
@@ -166,15 +203,18 @@ public class UserDashboardController {
     private void setupPageClick() {
         pageListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null) return;
+            if (scanManager == null) return;
 
             int docIndex = documentListView.getSelectionModel().getSelectedIndex();
             int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
 
             List<Document> docs = scanManager.getAllDocuments();
+            if (docIndex < 0 || docIndex >= docs.size()) return;
+
             Document selectedDoc = docs.get(docIndex);
+            if (pageIndex < 0 || pageIndex >= selectedDoc.getPages().size()) return;
 
             ScannedFile selectedPage = selectedDoc.getPages().get(pageIndex);
-
             imagePreview.setImage(imageService.toFxImage(selectedPage.getImage()));
         });
     }

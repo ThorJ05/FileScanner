@@ -30,9 +30,19 @@ public class ScanManager {
     private int totalFileCount = 0;
 
     public ScanManager(int userId) throws Exception {
+
+        // Opret box i DB
         int boxId = boxRepo.createBox(userId);
+
+        if (boxId <= 0) {
+            throw new Exception("Failed to create box for userId=" + userId);
+        }
+
+        // Opret RAM-model
         currentBox = new Box(boxId, userId);
-        currentDocument = new Document(-1, boxId, null); // midlertidigt dokument
+
+        // Ingen dokument endnu
+        currentDocument = null;
     }
 
     // -------------------------
@@ -41,6 +51,7 @@ public class ScanManager {
     public List<ScannedFile> scanNext() throws Exception {
         List<ScannedFile> result = new ArrayList<>();
 
+        // Hent TIFF
         BufferedImage img = api.fetchRandomTiff();
         String barcode = barcodeService.readBarcode(img);
 
@@ -54,21 +65,27 @@ public class ScanManager {
             currentBox.addDocument(currentDocument);
         }
 
-        // Hvis ingen dokument endnu → opret et
-        if (currentDocument.getId() == -1) {
-            int newDocId = docRepo.createDocument(currentBox.getId(), null);
-            currentDocument = new Document(newDocId, currentBox.getId(), null);
+// Hvis ingen dokument endnu → opret et med default barcode
+        if (currentDocument == null) {
+            String safeBarcode = (barcode == null ? "NO_BARCODE" : barcode);
+
+            int newDocId = docRepo.createDocument(currentBox.getId(), safeBarcode);
+            currentDocument = new Document(newDocId, currentBox.getId(), safeBarcode);
             currentBox.addDocument(currentDocument);
         }
 
+
+        // Page number = antal sider + 1
+        int pageNumber = currentDocument.getPages().size() + 1;
+
         // Gem TIFF på disk
-        String filePath = fileRepo.saveTiff(img, currentDocument.getId(), currentDocument.getPages().size() + 1);
+        String filePath = fileRepo.saveTiff(img, currentDocument.getId(), pageNumber);
 
         // Gem metadata i DB
-        pageRepo.createPage(currentDocument.getId(), currentDocument.getPages().size() + 1, filePath);
+        pageRepo.createPage(currentDocument.getId(), pageNumber, filePath);
 
         // Tilføj til RAM-model
-        ScannedFile scanned = new ScannedFile("Page " + totalFileCount, img, barcode, filePath);
+        ScannedFile scanned = new ScannedFile("Page " + pageNumber, img, barcode, filePath);
         currentDocument.addPage(scanned);
 
         result.add(scanned);
@@ -105,7 +122,7 @@ public class ScanManager {
 
     public void reset() {
         currentBox.clearDocuments();
-        currentDocument = new Document(-1, currentBox.getId(), null);
+        currentDocument = null;
         sessionScanCount = 0;
         totalFileCount = 0;
     }
