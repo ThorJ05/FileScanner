@@ -1,14 +1,22 @@
 package com.example.filescanner.DAL;
 
+import com.example.filescanner.BEE.ScannedFile;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PageRepository {
 
+    // -----------------------------
+    // CREATE PAGE
+    // -----------------------------
     public void createPage(int documentId, int pageNumber, String filePath) throws SQLException, IOException {
-        String sql = "INSERT INTO Page (documentId, pageNumber, filePath) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Page (DocumentId, PageNumber, FilePath) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -19,5 +27,29 @@ public class PageRepository {
 
             stmt.executeUpdate();
         }
+    }
+
+
+    public List<ScannedFile> getPagesByDocumentId(int documentId) throws SQLException, IOException {
+        List<ScannedFile> pages = new ArrayList<>();
+
+        String sql = "SELECT PageNumber, FilePath FROM Page WHERE DocumentId = ? ORDER BY PageNumber";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, documentId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int pageNumber = rs.getInt("PageNumber");
+                String filePath = rs.getString("FilePath");
+
+                // Vi loader ikke billedet her – GUI loader det selv
+                pages.add(new ScannedFile("Page " + pageNumber, null, null, filePath));
+            }
+        }
+
+        return pages;
     }
 }

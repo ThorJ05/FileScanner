@@ -31,19 +31,18 @@ public class ScanManager {
 
     public ScanManager(int userId) throws Exception {
 
-        // Opret box i DB
-        int boxId = boxRepo.createBox(userId);
+        // Hent seneste box i stedet for at oprette en ny
+        currentBox = boxRepo.getLatestBoxForUser(userId);
 
-        if (boxId <= 0) {
-            throw new Exception("Failed to create box for userId=" + userId);
+        if (currentBox == null) {
+            // Hvis ingen box findes → opret én
+            int boxId = boxRepo.createBox(userId);
+            currentBox = new Box(boxId, userId);
         }
 
-        // Opret RAM-model
-        currentBox = new Box(boxId, userId);
-
-        // Ingen dokument endnu
         currentDocument = null;
     }
+
 
     // -------------------------
     // MAIN SCAN METHOD
