@@ -1,5 +1,6 @@
 package com.example.filescanner.GUI.Controllers;
 
+import com.example.filescanner.BEE.Document;
 import com.example.filescanner.BEE.ScannedFile;
 import com.example.filescanner.BEE.User;
 import com.example.filescanner.BLL.ImageService;
@@ -11,49 +12,37 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDashboardController {
 
-    // Services
     private final ScanManager scanManager = new ScanManager();
     private final ImageService imageService = new ImageService();
 
-    // UI elements from your existing dashboard
+    // Dashboard labels
     @FXML private Label welcomeLabel;
     @FXML private Label docCountLabel;
     @FXML private Label fileCountLabel;
     @FXML private Label activeProfileLabel;
 
-    // New UI elements for scanning
+    // Scanning UI
     @FXML private ImageView imagePreview;
-    @FXML private ListView<String> fileListView;
     @FXML private Label statusLabel;
     @FXML private Label sessionCountLabel;
 
-    // Data
-    private final ObservableList<String> fileLabels = FXCollections.observableArrayList();
+    // NEW UI
+    @FXML private ListView<String> documentListView;
+    @FXML private ListView<String> pageListView;
 
     @FXML
     public void initialize() {
         loadUserInfo();
         loadStats();
 
-        // Setup list
-        if (fileListView != null) {
-            fileListView.setItems(fileLabels);
-
-            fileListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal != null) {
-                    showSelectedFile(newVal);
-                }
-            });
-        }
+        setupDocumentClick();
+        setupPageClick();
     }
-
-    // -------------------------
-    // Existing dashboard logic
-    // -------------------------
 
     private void loadUserInfo() {
         User user = SceneController.getCurrentUser();
@@ -77,11 +66,6 @@ public class UserDashboardController {
     }
 
     @FXML
-    private void onBack() {
-        SceneController.goBack();
-    }
-
-    @FXML
     private void onLogout() {
         SceneController.setCurrentUser(null);
         SceneController.clearHistory();
@@ -89,7 +73,7 @@ public class UserDashboardController {
     }
 
     // -------------------------
-    // NEW: Scanning logic
+    // SCANNING LOGIC
     // -------------------------
 
     @FXML
@@ -104,14 +88,11 @@ public class UserDashboardController {
 
             ScannedFile last = newFiles.get(newFiles.size() - 1);
 
-            // Add label to list
-            fileLabels.add(last.getLabel());
-
             // Show image
             imagePreview.setImage(imageService.toFxImage(last.getImage()));
 
             // Update counters
-            fileCountLabel.setText(String.valueOf(fileLabels.size()));
+            fileCountLabel.setText(String.valueOf(scanManager.getTotalFileCount()));
             sessionCountLabel.setText("Scanned this session: " + scanManager.getSessionScanCount());
 
             // Status
@@ -121,29 +102,86 @@ public class UserDashboardController {
                 statusLabel.setText("Scanned: " + last.getLabel());
             }
 
+            updateDocumentList();
+
         } catch (Exception e) {
             statusLabel.setText("Error scanning file.");
             e.printStackTrace();
         }
     }
 
-    private void showSelectedFile(String label) {
-        scanManager.getCurrentBox().getDocuments().forEach(doc -> {
-            doc.getPages().forEach(file -> {
-                if (file.getLabel().equals(label)) {
-                    imagePreview.setImage(imageService.toFxImage(file.getImage()));
-                }
-            });
-        });
-    }
-
     @FXML
     private void onReset() {
         scanManager.reset();
-        fileLabels.clear();
+        documentListView.getItems().clear();
+        pageListView.getItems().clear();
         imagePreview.setImage(null);
+
         sessionCountLabel.setText("Scanned this session: 0");
         fileCountLabel.setText("0");
+        docCountLabel.setText("0");
+
         statusLabel.setText("Session reset.");
+    }
+
+    // -------------------------
+    // DOCUMENT + PAGE VIEW
+    // -------------------------
+
+    private void updateDocumentList() {
+        documentListView.getItems().clear();
+
+        List<Document> docs = new ArrayList<>(scanManager.getCurrentBox().getDocuments());
+
+        // Include active document if not empty
+        if (!scanManager.getCurrentDocument().getPages().isEmpty()) {
+            docs.add(scanManager.getCurrentDocument());
+        }
+
+        int index = 1;
+        for (Document doc : docs) {
+            documentListView.getItems().add("Document " + index++);
+        }
+
+        docCountLabel.setText(String.valueOf(docs.size()));
+    }
+
+    private void setupDocumentClick() {
+        documentListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) return;
+
+            int docIndex = documentListView.getSelectionModel().getSelectedIndex();
+
+            List<Document> docs = new ArrayList<>(scanManager.getCurrentBox().getDocuments());
+            if (!scanManager.getCurrentDocument().getPages().isEmpty()) {
+                docs.add(scanManager.getCurrentDocument());
+            }
+
+            Document selectedDoc = docs.get(docIndex);
+
+            pageListView.getItems().clear();
+            for (int i = 0; i < selectedDoc.getPages().size(); i++) {
+                pageListView.getItems().add("Page " + (i + 1));
+            }
+        });
+    }
+
+    private void setupPageClick() {
+        pageListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) return;
+
+            int docIndex = documentListView.getSelectionModel().getSelectedIndex();
+            int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
+
+            List<Document> docs = new ArrayList<>(scanManager.getCurrentBox().getDocuments());
+            if (!scanManager.getCurrentDocument().getPages().isEmpty()) {
+                docs.add(scanManager.getCurrentDocument());
+            }
+
+            Document selectedDoc = docs.get(docIndex);
+            ScannedFile selectedPage = selectedDoc.getPages().get(pageIndex);
+
+            imagePreview.setImage(imageService.toFxImage(selectedPage.getImage()));
+        });
     }
 }

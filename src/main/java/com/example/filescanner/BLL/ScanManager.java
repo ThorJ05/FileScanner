@@ -26,7 +26,7 @@ public class ScanManager {
         ScannedFile file = new ScannedFile("Page " + (sessionCount + 1), img, barcode);
         sessionCount++;
 
-        // Hvis der er barcode → nyt dokument
+        // Hvis der er barcode → afslut dokument og start nyt
         if (file.hasBarcode()) {
             if (!currentDocument.getPages().isEmpty()) {
                 currentBox.addDocument(currentDocument);
@@ -40,15 +40,43 @@ public class ScanManager {
         return result;
     }
 
+    // Returnerer ALLE dokumenter (inkl. det aktive)
+    public List<Document> getAllDocuments() {
+        List<Document> docs = new ArrayList<>(currentBox.getDocuments());
+
+        if (!currentDocument.getPages().isEmpty()) {
+            docs.add(currentDocument);
+        }
+
+        return docs;
+    }
+
     public int getSessionScanCount() {
         return sessionCount;
+    }
+
+    public int getTotalFileCount() {
+        return currentBox.getDocuments()
+                .stream()
+                .mapToInt(doc -> doc.getPages().size())
+                .sum()
+                + currentDocument.getPages().size();
     }
 
     public Box getCurrentBox() {
         return currentBox;
     }
 
+    public Document getCurrentDocument() {
+        return currentDocument;
+    }
+
     public void reset() {
+        // Tilføj sidste dokument hvis det ikke er tomt
+        if (!currentDocument.getPages().isEmpty()) {
+            currentBox.addDocument(currentDocument);
+        }
+
         sessionCount = 0;
         currentDocument = new Document();
         currentBox.getDocuments().clear();
