@@ -16,14 +16,8 @@ public class AdminDashboardController {
 
     @FXML private Label userCountLabel;
     @FXML private ListView<String> userListView;
-
     @FXML private TextField usernameField;
-    @FXML private TextField firstNameField;
-    @FXML private TextField lastNameField;
-    @FXML private TextField companyField;
-    @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
-
     @FXML private ComboBox<String> roleComboBox;
     @FXML private Label statusLabel;
     @FXML private Button createUserButton;
@@ -31,6 +25,7 @@ public class AdminDashboardController {
 
     private final UserManager userManager = new UserManager();
     private List<User> currentUsers;
+
     @FXML
     private void openProfiles() {
         SceneController.switchTo("profiles.fxml");
@@ -66,30 +61,12 @@ public class AdminDashboardController {
     }
 
     private void setupArrowNavigation() {
-        usernameField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.DOWN) firstNameField.requestFocus(); });
-
-        firstNameField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.UP) usernameField.requestFocus();
-            else if (e.getCode() == KeyCode.DOWN) lastNameField.requestFocus();
-        });
-
-        lastNameField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.UP) firstNameField.requestFocus();
-            else if (e.getCode() == KeyCode.DOWN) companyField.requestFocus();
-        });
-
-        companyField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.UP) lastNameField.requestFocus();
-            else if (e.getCode() == KeyCode.DOWN) emailField.requestFocus();
-        });
-
-        emailField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.UP) companyField.requestFocus();
-            else if (e.getCode() == KeyCode.DOWN) passwordField.requestFocus();
+        usernameField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.DOWN) passwordField.requestFocus();
         });
 
         passwordField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.UP) emailField.requestFocus();
+            if (e.getCode() == KeyCode.UP) usernameField.requestFocus();
             else if (e.getCode() == KeyCode.DOWN) roleComboBox.requestFocus();
         });
 
@@ -116,12 +93,8 @@ public class AdminDashboardController {
     @FXML
     private void onCreateUser() {
         String username = usernameField.getText().trim();
-        String firstName = firstNameField.getText().trim();
-        String lastName = lastNameField.getText().trim();
-        String company = companyField.getText().trim();
-        String email = emailField.getText().trim();
         String password = passwordField.getText();
-        String roleStr = roleComboBox.getValue();
+        String roleStr  = roleComboBox.getValue();
 
         if (username.isEmpty() || password.isEmpty()) {
             statusLabel.setText("Username and password are required.");
@@ -132,7 +105,7 @@ public class AdminDashboardController {
 
         userManager.createUser(username, password, role);
 
-        statusLabel.setText("User created successfully.");
+        statusLabel.setText("User created: " + username);
         clearFields();
         loadUsers();
     }
@@ -154,10 +127,6 @@ public class AdminDashboardController {
 
     private void clearFields() {
         usernameField.clear();
-        firstNameField.clear();
-        lastNameField.clear();
-        companyField.clear();
-        emailField.clear();
         passwordField.clear();
         roleComboBox.getSelectionModel().selectFirst();
     }

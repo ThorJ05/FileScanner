@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -27,10 +26,11 @@
                     style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
                            -fx-alignment: center-left; -fx-padding: 14;
                            -fx-background-radius: 8; -fx-cursor: hand;"/>
+
             <Button text="Clients" maxWidth="Infinity" onAction="#openClients"
                     style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-               -fx-alignment: center-left; -fx-padding: 14;
-               -fx-background-radius: 8; -fx-cursor: hand;"/>
+                           -fx-alignment: center-left; -fx-padding: 14;
+                           -fx-background-radius: 8; -fx-cursor: hand;"/>
 
             <Region VBox.vgrow="ALWAYS"/>
 
@@ -44,8 +44,6 @@
     <!-- Main content area -->
     <center>
         <AnchorPane fx:id="contentArea">
-
-            <!-- Default dashboard content -->
             <HBox spacing="40" style="-fx-padding: 40;"
                   AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
                   AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
@@ -94,39 +92,9 @@
                            style="-fx-font-size: 13px; -fx-text-fill: #a6adc8;"/>
 
                     <VBox spacing="8">
-                        <Label text="First Name (Username)"
+                        <Label text="Username"
                                style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                        <TextField fx:id="firstNameField" promptText="First name"
-                                   style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                                          -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                                          -fx-border-radius: 8; -fx-background-radius: 8;
-                                          -fx-padding: 10;"/>
-                    </VBox>
-
-                    <VBox spacing="8">
-                        <Label text="Last Name"
-                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                        <TextField fx:id="lastNameField" promptText="Last name"
-                                   style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                                          -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                                          -fx-border-radius: 8; -fx-background-radius: 8;
-                                          -fx-padding: 10;"/>
-                    </VBox>
-
-                    <VBox spacing="8">
-                        <Label text="Company Name"
-                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                        <TextField fx:id="companyField" promptText="Company name"
-                                   style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
-                                          -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
-                                          -fx-border-radius: 8; -fx-background-radius: 8;
-                                          -fx-padding: 10;"/>
-                    </VBox>
-
-                    <VBox spacing="8">
-                        <Label text="Email"
-                               style="-fx-text-fill: #a6adc8; -fx-font-size: 12px;"/>
-                        <TextField fx:id="emailField" promptText="Email address"
+                        <TextField fx:id="usernameField" promptText="Username"
                                    style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
                                           -fx-prompt-text-fill: #585b70; -fx-border-color: #45475a;
                                           -fx-border-radius: 8; -fx-background-radius: 8;

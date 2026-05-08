@@ -50,7 +50,10 @@
             <VBox spacing="12" prefWidth="420">
                 <HBox alignment="CENTER_LEFT">
                     <Button text="Dashboard" onAction="#onBack"
-                            style="-fx-background-color: transparent; -fx-text-fill: #89b4fa; -fx-padding: 6; -fx-cursor: hand;"/>
+                            style="-fx-background-color: #313244; -fx-text-fill: #89b4fa;
+                           -fx-font-weight: bold; -fx-padding: 8 15;
+                           -fx-background-radius: 8; -fx-cursor: hand;
+                           -fx-border-color: #89b4fa; -fx-border-radius: 8;"/>
                 </HBox>
 
                 <Label text="Edit profil"

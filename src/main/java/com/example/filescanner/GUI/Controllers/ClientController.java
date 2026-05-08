@@ -6,6 +6,7 @@ import com.example.filescanner.BLL.ClientManager;
 import com.example.filescanner.BLL.ProfileManager;
 import com.example.filescanner.DAL.ClientRepository;
 import com.example.filescanner.DAL.ProfileRepository;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -14,17 +15,28 @@ import java.util.List;
 
 public class ClientController {
 
-    @FXML private TextField txtCompanyName;
+    @FXML
+    private TextField txtCompanyName;
 
-    @FXML private TableView<Client> tblClients;
-    @FXML private TableColumn<Client, Integer> colId;
-    @FXML private TableColumn<Client, String> colCompany;
-    @FXML private TableColumn<Client, String> colAssignedProfiles;
+    @FXML
+    private TableView<Client> tblClients;
+    @FXML
+    private TableColumn<Client, Integer> colId;
+    @FXML
+    private TableColumn<Client, String> colCompany;
+    @FXML
+    private TableColumn<Client, String> colAssignedProfiles;
 
-    @FXML private ComboBox<Profile> comboProfiles;
+    @FXML
+    private ComboBox<Profile> comboProfiles;
 
     private ClientManager clientManager;
     private ProfileManager profileManager;
+
+    @FXML
+    private void onBack() {
+        SceneController.goBack();
+    }
 
     @FXML
     public void initialize() {
