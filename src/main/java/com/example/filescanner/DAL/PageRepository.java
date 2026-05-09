@@ -2,6 +2,7 @@ package com.example.filescanner.DAL;
 
 import com.example.filescanner.BEE.ScannedFile;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,13 +46,16 @@ public class PageRepository {
                 int pageNumber = rs.getInt("PageNumber");
                 String filePath = rs.getString("FilePath");
 
-                // Vi loader ikke billedet her – GUI loader det selv
-                pages.add(new ScannedFile("Page " + pageNumber, null, null, filePath));
+                // LOad pictures
+                BufferedImage img = javax.imageio.ImageIO.read(new java.io.File(filePath));
+
+                pages.add(new ScannedFile("Page " + pageNumber, img, null, filePath));
             }
         }
 
         return pages;
     }
+
     public void updatePageNumber(int documentId, int pageNumber, String filePath) throws SQLException, IOException {
         String sql = "UPDATE Page SET PageNumber = ? WHERE DocumentId = ? AND FilePath = ?";
 
