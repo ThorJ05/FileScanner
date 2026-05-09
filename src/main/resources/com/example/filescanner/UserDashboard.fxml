@@ -74,6 +74,10 @@
                     <Label text="Documents" style="-fx-text-fill: #cdd6f4; -fx-font-size: 16px;"/>
                     <ListView fx:id="documentListView" prefWidth="150" prefHeight="400"/>
                 </VBox>
+                <HBox spacing="10">
+                    <Button text="Move Up" onAction="#onMovePageUp"/>
+                    <Button text="Move Down" onAction="#onMovePageDown"/>
+                </HBox>
 
                 <!-- PAGE LIST -->
                 <VBox spacing="10">

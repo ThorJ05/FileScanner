@@ -19,111 +19,168 @@ public class UserDashboardController {
 
     private ScanManager scanManager;
     private final ImageService imageService = new ImageService();
-
     private final DocumentRepository docRepo = new DocumentRepository();
     private final PageRepository pageRepo = new PageRepository();
 
-    private int currentUserId;
-
-    // Dashboard labels
-    @FXML private Label welcomeLabel;
-    @FXML private Label docCountLabel;
-    @FXML private Label fileCountLabel;
-    @FXML private Label activeProfileLabel;
-
-    // Scanning UI
+    @FXML private Label welcomeLabel, docCountLabel, fileCountLabel, activeProfileLabel, statusLabel, sessionCountLabel;
     @FXML private ImageView imagePreview;
-    @FXML private Label statusLabel;
-    @FXML private Label sessionCountLabel;
-
-    // Lists
-    @FXML private ListView<String> documentListView;
-    @FXML private ListView<String> pageListView;
+    @FXML private ListView<String> documentListView, pageListView;
 
     public void initialize() {
-        System.out.println("UserDashboardController.initialize() called");
-
         User user = SceneController.getCurrentUser();
         if (user == null) return;
 
-        currentUserId = Integer.parseInt(user.getId()); // user.getId() ER allerede int
+        int currentUserId = Integer.parseInt(user.getId());
 
-        loadUserInfo();
+        loadUserInfo(user);
         loadStats();
 
         try {
             scanManager = new ScanManager(currentUserId);
-
-            Box box = scanManager.getCurrentBox();
-
-            // HENT DOKUMENTER FRA DB
-            List<Document> docs = docRepo.getDocumentsByBoxId(box.getId());
-
-            for (Document d : docs) {
-                // HENT SIDER FRA DB
-                List<ScannedFile> pages = pageRepo.getPagesByDocumentId(d.getId());
-                for (ScannedFile p : pages) {
-                    d.addPage(p);
-                }
-                box.addDocument(d);
-            }
-
-            updateDocumentListView();
+            loadExistingDocuments();
             setupDocumentClick();
             setupPageClick();
-
+            updateDocumentListView();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // -------------------------
-    // UPDATE DOCUMENT LIST + AUTO SELECT
-    // -------------------------
+    private void loadExistingDocuments() throws Exception {
+        Box box = scanManager.getCurrentBox();
+        List<Document> docs = docRepo.getDocumentsByBoxId(box.getId());
+
+        for (Document d : docs) {
+            List<ScannedFile> pages = pageRepo.getPagesByDocumentId(d.getId());
+            pages.forEach(d::addPage);
+            box.addDocument(d);
+        }
+    }
+
     private void updateDocumentListView() {
         documentListView.getItems().clear();
 
         List<Document> docs = scanManager.getAllDocuments();
-        int index = 1;
-
-        for (Document doc : docs) {
-            documentListView.getItems().add("Document " + index++);
+        for (int i = 0; i < docs.size(); i++) {
+            documentListView.getItems().add("Document " + (i + 1));
         }
 
         docCountLabel.setText(String.valueOf(docs.size()));
 
-        // AUTO-VÆLG DET NYESTE DOKUMENT
         if (!docs.isEmpty()) {
             documentListView.getSelectionModel().select(docs.size() - 1);
-            updatePageListForSelectedDocument();
+            updatePageList();
         }
     }
 
-    // -------------------------
-    // UPDATE PAGE LIST FOR SELECTED DOCUMENT
-    // -------------------------
-    private void updatePageListForSelectedDocument() {
+    private void updatePageList() {
         pageListView.getItems().clear();
 
         int docIndex = documentListView.getSelectionModel().getSelectedIndex();
         if (docIndex < 0) return;
 
-        Document selectedDoc = scanManager.getAllDocuments().get(docIndex);
+        Document doc = scanManager.getAllDocuments().get(docIndex);
 
-        for (int i = 0; i < selectedDoc.getPages().size(); i++) {
+        for (int i = 0; i < doc.getPages().size(); i++) {
             pageListView.getItems().add("Page " + (i + 1));
         }
     }
 
-    // -------------------------
-    // USER INFO + STATS
-    // -------------------------
-    private void loadUserInfo() {
-        User user = SceneController.getCurrentUser();
-        if (user != null) {
-            welcomeLabel.setText("Welcome back, " + user.getUsername() + "!");
-            activeProfileLabel.setText(user.getUsername());
+    private void setupDocumentClick() {
+        documentListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> updatePageList());
+    }
+
+    private void setupPageClick() {
+        pageListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            int docIndex = documentListView.getSelectionModel().getSelectedIndex();
+            int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
+            if (docIndex < 0 || pageIndex < 0) return;
+
+            ScannedFile page = scanManager.getAllDocuments().get(docIndex).getPages().get(pageIndex);
+            imagePreview.setImage(imageService.toFxImage(page.getImage()));
+        });
+    }
+
+    @FXML
+    private void onScan() {
+        try {
+            List<ScannedFile> newFiles = scanManager.scanNext();
+            if (newFiles.isEmpty()) return;
+
+            ScannedFile last = newFiles.get(newFiles.size() - 1);
+            imagePreview.setImage(imageService.toFxImage(last.getImage()));
+
+            fileCountLabel.setText(String.valueOf(scanManager.getTotalFileCount()));
+            sessionCountLabel.setText("Scanned this session: " + scanManager.getSessionScanCount());
+            statusLabel.setText(last.hasBarcode() ? "BARCODE: " + last.getBarcode() : "Scanned");
+
+            updateDocumentListView();
+        } catch (Exception e) {
+            statusLabel.setText("Error scanning.");
+            e.printStackTrace();
         }
+    }
+
+    // -------------------------
+    // PAGE REORDERING
+    // -------------------------
+    @FXML
+    private void onMovePageUp() {
+        int docIndex = documentListView.getSelectionModel().getSelectedIndex();
+        int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
+        if (docIndex < 0 || pageIndex <= 0) return;
+
+        Document doc = scanManager.getAllDocuments().get(docIndex);
+
+        ScannedFile page = doc.getPages().remove(pageIndex);
+        doc.getPages().add(pageIndex - 1, page);
+
+        savePageOrderToDatabase(doc);
+        updatePageList();
+        pageListView.getSelectionModel().select(pageIndex - 1);
+    }
+
+    @FXML
+    private void onMovePageDown() {
+        int docIndex = documentListView.getSelectionModel().getSelectedIndex();
+        int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
+        if (docIndex < 0) return;
+
+        Document doc = scanManager.getAllDocuments().get(docIndex);
+        if (pageIndex < 0 || pageIndex >= doc.getPages().size() - 1) return;
+
+        ScannedFile page = doc.getPages().remove(pageIndex);
+        doc.getPages().add(pageIndex + 1, page);
+
+        savePageOrderToDatabase(doc);
+        updatePageList();
+        pageListView.getSelectionModel().select(pageIndex + 1);
+    }
+
+    private void savePageOrderToDatabase(Document doc) {
+        try {
+            for (int i = 0; i < doc.getPages().size(); i++) {
+                ScannedFile page = doc.getPages().get(i);
+                pageRepo.updatePageNumber(doc.getId(), i + 1, page.getFilePath());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onReset() {
+        scanManager.reset();
+        documentListView.getItems().clear();
+        pageListView.getItems().clear();
+        imagePreview.setImage(null);
+        loadStats();
+        statusLabel.setText("Session reset.");
+    }
+
+    private void loadUserInfo(User user) {
+        welcomeLabel.setText("Welcome back, " + user.getUsername());
+        activeProfileLabel.setText(user.getUsername());
     }
 
     private void loadStats() {
@@ -133,97 +190,15 @@ public class UserDashboardController {
     }
 
     @FXML
-    private void onDashboard() {
-        loadUserInfo();
-        loadStats();
-    }
-
-    @FXML
     private void onLogout() {
         SceneController.setCurrentUser(null);
         SceneController.clearHistory();
         SceneController.switchTo("Login.fxml");
     }
-
-    // -------------------------
-    // SCANNING LOGIC
-    // -------------------------
     @FXML
-    private void onScan() {
-        if (scanManager == null) {
-            statusLabel.setText("Scanner not ready.");
-            return;
-        }
-
-        try {
-            List<ScannedFile> newFiles = scanManager.scanNext();
-
-            if (newFiles == null || newFiles.isEmpty()) {
-                statusLabel.setText("No files scanned.");
-                return;
-            }
-
-            ScannedFile last = newFiles.get(newFiles.size() - 1);
-
-            imagePreview.setImage(imageService.toFxImage(last.getImage()));
-
-            fileCountLabel.setText(String.valueOf(scanManager.getTotalFileCount()));
-            sessionCountLabel.setText("Scanned this session: " + scanManager.getSessionScanCount());
-
-            if (last.hasBarcode()) {
-                statusLabel.setText("Scanned: " + last.getLabel() + " (BARCODE: " + last.getBarcode() + ")");
-            } else {
-                statusLabel.setText("Scanned: " + last.getLabel());
-            }
-
-            updateDocumentListView();
-
-        } catch (Exception e) {
-            statusLabel.setText("Error scanning file.");
-            e.printStackTrace();
-        }
+    private void onDashboard() {
+        loadUserInfo(SceneController.getCurrentUser());
+        loadStats();
     }
 
-    @FXML
-    private void onReset() {
-        if (scanManager == null) return;
-
-        scanManager.reset();
-        documentListView.getItems().clear();
-        pageListView.getItems().clear();
-        imagePreview.setImage(null);
-
-        sessionCountLabel.setText("Scanned this session: 0");
-        fileCountLabel.setText("0");
-        docCountLabel.setText("0");
-
-        statusLabel.setText("Session reset.");
-    }
-
-    // -------------------------
-    // CLICK HANDLERS
-    // -------------------------
-    private void setupDocumentClick() {
-        documentListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            updatePageListForSelectedDocument();
-        });
-    }
-
-    private void setupPageClick() {
-        pageListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null) return;
-
-            int docIndex = documentListView.getSelectionModel().getSelectedIndex();
-            int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
-
-            List<Document> docs = scanManager.getAllDocuments();
-            if (docIndex < 0 || docIndex >= docs.size()) return;
-
-            Document selectedDoc = docs.get(docIndex);
-            if (pageIndex < 0 || pageIndex >= selectedDoc.getPages().size()) return;
-
-            ScannedFile selectedPage = selectedDoc.getPages().get(pageIndex);
-            imagePreview.setImage(imageService.toFxImage(selectedPage.getImage()));
-        });
-    }
 }

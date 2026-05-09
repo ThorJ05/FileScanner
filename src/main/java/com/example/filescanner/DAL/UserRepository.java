@@ -4,6 +4,7 @@ import com.example.filescanner.BEE.BasicUser;
 import com.example.filescanner.BEE.User;
 import com.example.filescanner.BEE.UserRole;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,8 +94,13 @@ public class UserRepository implements IUserRepository {
             e.printStackTrace();
         }
 
+
         return list;
-    }@Override
+    }
+
+
+
+    @Override
     public boolean emailExists(String email) {
         return false;
     }@Override

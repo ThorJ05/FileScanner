@@ -52,4 +52,18 @@ public class PageRepository {
 
         return pages;
     }
+    public void updatePageNumber(int documentId, int pageNumber, String filePath) throws SQLException, IOException {
+        String sql = "UPDATE Page SET PageNumber = ? WHERE DocumentId = ? AND FilePath = ?";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, pageNumber);
+            stmt.setInt(2, documentId);
+            stmt.setString(3, filePath);
+
+            stmt.executeUpdate();
+        }
+    }
+
 }

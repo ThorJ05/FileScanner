@@ -46,7 +46,7 @@ public class SceneController {
                 return;
             }
 
-            // ⭐ KORREKT LOADING
+
             FXMLLoader loader = new FXMLLoader(resource);
             Parent root = loader.load();
 
