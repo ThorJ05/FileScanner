@@ -6,11 +6,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 
-/**
- * ImageProcessor is a pure image-transform utility. It no longer depends on
- * the Profile model — callers supply rotation/brightness/contrast explicitly.
- * This reduces coupling between BLL and BEE.
- */
+
 
 public class ImageProcessor {
 

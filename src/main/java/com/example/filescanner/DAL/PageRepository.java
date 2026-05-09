@@ -13,9 +13,9 @@ import java.util.List;
 
 public class PageRepository {
 
-    // -----------------------------
+
     // CREATE PAGE
-    // -----------------------------
+
     public void createPage(int documentId, int pageNumber, String filePath) throws SQLException, IOException {
         String sql = "INSERT INTO Page (DocumentId, PageNumber, FilePath) VALUES (?, ?, ?)";
 

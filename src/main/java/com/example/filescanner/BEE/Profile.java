@@ -12,7 +12,8 @@ public class Profile {
     private boolean splitOnBarcode;
 
     private String exportFormat; // "TIFF", "PNG", "JPG"
-    // Used by repository (loading from DB)
+
+    // Used by repository
     public Profile(int id, String name, int rotation, float brightness, float contrast,
                    boolean splitOnBarcode, String exportFormat) {
         this.id = id;

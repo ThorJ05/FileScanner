@@ -12,9 +12,8 @@ import java.util.List;
 
 public class DocumentRepository {
 
-    // -----------------------------
     // CREATE DOCUMENT
-    // -----------------------------
+
     public int createDocument(int boxId, String barcode) throws SQLException, IOException {
 
         String sql = "INSERT INTO Documents (BoxId, Barcode) " +
@@ -41,9 +40,8 @@ public class DocumentRepository {
         return -1;
     }
 
-    // -----------------------------
     // GET DOCUMENTS BY BOX ID
-    // -----------------------------
+
     public List<Document> getDocumentsByBoxId(int boxId) throws SQLException, IOException {
         List<Document> docs = new ArrayList<>();
 

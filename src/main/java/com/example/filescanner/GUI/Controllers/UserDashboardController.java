@@ -121,9 +121,8 @@ public class UserDashboardController {
         }
     }
 
-    // -------------------------
     // PAGE REORDERING
-    // -------------------------
+
     @FXML
     private void onMovePageUp() {
         int docIndex = documentListView.getSelectionModel().getSelectedIndex();

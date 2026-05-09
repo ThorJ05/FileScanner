@@ -44,9 +44,9 @@ public class ScanManager {
     }
 
 
-    // -------------------------
+
     // MAIN SCAN METHOD
-    // -------------------------
+
     public List<ScannedFile> scanNext() throws Exception {
         List<ScannedFile> result = new ArrayList<>();
 
@@ -57,14 +57,14 @@ public class ScanManager {
         sessionScanCount++;
         totalFileCount++;
 
-        // Hvis barcode → nyt dokument
+
         if (barcode != null) {
             int newDocId = docRepo.createDocument(currentBox.getId(), barcode);
             currentDocument = new Document(newDocId, currentBox.getId(), barcode);
             currentBox.addDocument(currentDocument);
         }
 
-// Hvis ingen dokument endnu → opret et med default barcode
+// if no documents yet new barcode
         if (currentDocument == null) {
             String safeBarcode = (barcode == null ? "NO_BARCODE" : barcode);
 
@@ -74,16 +74,15 @@ public class ScanManager {
         }
 
 
-        // Page number = antal sider + 1
+        // Page number
         int pageNumber = currentDocument.getPages().size() + 1;
 
-        // Gem TIFF på disk
+        // safe TIFF
         String filePath = fileRepo.saveTiff(img, currentDocument.getId(), pageNumber);
 
-        // Gem metadata i DB
+        // SAFE METADATA IN DATABASE
         pageRepo.createPage(currentDocument.getId(), pageNumber, filePath);
 
-        // Tilføj til RAM-model
         ScannedFile scanned = new ScannedFile("Page " + pageNumber, img, barcode, filePath);
         currentDocument.addPage(scanned);
 
@@ -91,9 +90,8 @@ public class ScanManager {
         return result;
     }
 
-    // -------------------------
+
     // GETTERS FOR CONTROLLER
-    // -------------------------
 
     public int getTotalFileCount() {
         return totalFileCount;
@@ -115,9 +113,9 @@ public class ScanManager {
         return currentBox.getDocuments();
     }
 
-    // -------------------------
+
     // RESET
-    // -------------------------
+
 
     public void reset() {
         currentBox.clearDocuments();

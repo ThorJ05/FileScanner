@@ -26,7 +26,7 @@ public class TiffApiClient {
         while (entry != null) {
             if (!entry.isDirectory() && entry.getName().toLowerCase().endsWith(".tiff")) {
 
-                // Read TIFF file from ZIP
+                // Read TIFF file
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 byte[] buffer = new byte[4096];
                 int read;
