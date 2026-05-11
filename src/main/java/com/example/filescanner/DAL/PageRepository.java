@@ -1,40 +1,33 @@
 package com.example.filescanner.DAL;
 
 import com.example.filescanner.BEE.ScannedFile;
+import com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi;
 
+import javax.imageio.*;
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.sql.*;
+import java.util.*;
 
 public class PageRepository {
 
-
-    // CREATE PAGE
-
-    public void createPage(int documentId, int pageNumber, String filePath) throws SQLException, IOException {
-        String sql = "INSERT INTO Page (DocumentId, PageNumber, FilePath) VALUES (?, ?, ?)";
-
-        try (Connection conn = DBConnector.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, documentId);
-            stmt.setInt(2, pageNumber);
-            stmt.setString(3, filePath);
-
-            stmt.executeUpdate();
-        }
+    static {
+        IIORegistry.getDefaultInstance()
+                .registerServiceProvider(new TIFFImageReaderSpi());
+        ImageIO.scanForPlugins();
     }
 
+    public void createPage(int documentId, int pageNumber, String filePath) {
+        System.out.println("Page saved: document=" + documentId + " page=" + pageNumber);
+    }
 
-    public List<ScannedFile> getPagesByDocumentId(int documentId) throws SQLException, IOException {
+    public List<ScannedFile> getPagesByDocumentId(int documentId) throws Exception {
+
         List<ScannedFile> pages = new ArrayList<>();
 
-        String sql = "SELECT PageNumber, FilePath FROM Page WHERE DocumentId = ? ORDER BY PageNumber";
+        String sql = "SELECT PageNumber, Image FROM dbo.Page WHERE DocumentId = ? ORDER BY PageNumber";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -43,31 +36,69 @@ public class PageRepository {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+
                 int pageNumber = rs.getInt("PageNumber");
-                String filePath = rs.getString("FilePath");
+                byte[] imageBytes = rs.getBytes("Image");
 
-                // LOad pictures
-                BufferedImage img = javax.imageio.ImageIO.read(new java.io.File(filePath));
+                if (imageBytes == null) continue;
 
-                pages.add(new ScannedFile("Page " + pageNumber, img, null, filePath));
+                BufferedImage img = decodeTiff(imageBytes);
+                if (img == null) continue;
+
+                String ref = "db://document/" + documentId + "/page/" + pageNumber;
+
+                pages.add(new ScannedFile(
+                        "Page " + pageNumber,
+                        img,
+                        null,
+                        ref
+                ));
             }
         }
 
         return pages;
     }
 
-    public void updatePageNumber(int documentId, int pageNumber, String filePath) throws SQLException, IOException {
-        String sql = "UPDATE Page SET PageNumber = ? WHERE DocumentId = ? AND FilePath = ?";
+    public void updatePageNumber(int documentId, int newPageNumber, String filePath) throws Exception {
+
+        String sql = "UPDATE dbo.Page SET PageNumber = ? " +
+                "WHERE DocumentId = ? AND PageNumber = ?";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, pageNumber);
+            stmt.setInt(1, newPageNumber);
             stmt.setInt(2, documentId);
-            stmt.setString(3, filePath);
+
+            String[] parts = filePath.split("/");
+            int oldPageNumber = Integer.parseInt(parts[parts.length - 1]);
+
+            stmt.setInt(3, oldPageNumber);
 
             stmt.executeUpdate();
         }
     }
 
+    private BufferedImage decodeTiff(byte[] bytes) {
+        try {
+            Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("tiff");
+            if (!readers.hasNext()) return null;
+
+            ImageReader reader = readers.next();
+
+            try (ImageInputStream iis =
+                         ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {
+
+                reader.setInput(iis, false);
+                return reader.read(0);
+
+            } finally {
+                reader.dispose();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

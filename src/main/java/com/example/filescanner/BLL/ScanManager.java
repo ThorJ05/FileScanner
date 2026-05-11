@@ -29,42 +29,31 @@ public class ScanManager {
     private int sessionScanCount = 0;
     private int totalFileCount = 0;
 
+    //  CONSTRUCTOR
     public ScanManager(int userId) throws Exception {
-
-        // Hent seneste box i stedet for at oprette en ny
-        currentBox = boxRepo.getLatestBoxForUser(userId);
-
-        if (currentBox == null) {
-            // Hvis ingen box findes → opret én
-            int boxId = boxRepo.createBox(userId);
-            currentBox = new Box(boxId, userId);
-        }
-
+        currentBox = boxRepo.getOrCreateBox(userId);
         currentDocument = null;
     }
 
-
-
-    // MAIN SCAN METHOD
-
+    //  MAIN SCAN METHOD
     public List<ScannedFile> scanNext() throws Exception {
         List<ScannedFile> result = new ArrayList<>();
 
-        // Hent TIFF
+        // Fetch TIFF
         BufferedImage img = api.fetchRandomTiff();
         String barcode = barcodeService.readBarcode(img);
 
         sessionScanCount++;
         totalFileCount++;
 
-
+        // Create new document if barcode found
         if (barcode != null) {
             int newDocId = docRepo.createDocument(currentBox.getId(), barcode);
             currentDocument = new Document(newDocId, currentBox.getId(), barcode);
             currentBox.addDocument(currentDocument);
         }
 
-// if no documents yet new barcode
+        // If no document yet → create default
         if (currentDocument == null) {
             String safeBarcode = (barcode == null ? "NO_BARCODE" : barcode);
 
@@ -73,16 +62,16 @@ public class ScanManager {
             currentBox.addDocument(currentDocument);
         }
 
-
         // Page number
         int pageNumber = currentDocument.getPages().size() + 1;
 
-        // safe TIFF
+        // Save to DB
         String filePath = fileRepo.saveTiff(img, currentDocument.getId(), pageNumber);
 
-        // SAFE METADATA IN DATABASE
+        // Metadata (optional)
         pageRepo.createPage(currentDocument.getId(), pageNumber, filePath);
 
+        // Create object
         ScannedFile scanned = new ScannedFile("Page " + pageNumber, img, barcode, filePath);
         currentDocument.addPage(scanned);
 
@@ -90,33 +79,18 @@ public class ScanManager {
         return result;
     }
 
+    // GETTERS
+    public int getTotalFileCount() { return totalFileCount; }
 
-    // GETTERS FOR CONTROLLER
+    public int getSessionScanCount() { return sessionScanCount; }
 
-    public int getTotalFileCount() {
-        return totalFileCount;
-    }
+    public Box getCurrentBox() { return currentBox; }
 
-    public int getSessionScanCount() {
-        return sessionScanCount;
-    }
+    public Document getCurrentDocument() { return currentDocument; }
 
-    public Box getCurrentBox() {
-        return currentBox;
-    }
-
-    public Document getCurrentDocument() {
-        return currentDocument;
-    }
-
-    public List<Document> getAllDocuments() {
-        return currentBox.getDocuments();
-    }
-
+    public List<Document> getAllDocuments() { return currentBox.getDocuments(); }
 
     // RESET
-
-
     public void reset() {
         currentBox.clearDocuments();
         currentDocument = null;

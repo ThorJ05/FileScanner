@@ -7,32 +7,30 @@ public class ScannedFile {
     private final String label;
     private final BufferedImage image;
     private final String barcode;
-    private final String filePath; // <-- MANGLEDE
+    private final String filePath;
+
+    private int rotation = 0;
 
     public ScannedFile(String label, BufferedImage image, String barcode, String filePath) {
         this.label = label;
         this.image = image;
         this.barcode = barcode;
-        this.filePath = filePath; // <-- MANGLEDE
+        this.filePath = filePath;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public BufferedImage getImage() {
-        return image;
-    }
-
-    public String getBarcode() {
-        return barcode;
-    }
+    public String getLabel() { return label; }
+    public BufferedImage getImage() { return image; }
+    public String getBarcode() { return barcode; }
+    public String getFilePath() { return filePath; }
 
     public boolean hasBarcode() {
         return barcode != null;
     }
 
-    public String getFilePath() {
-        return filePath; // <-- NU VIRKER DET
+    // ✅ ADD THESE BACK
+    public int getRotation() { return rotation; }
+
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
     }
 }
