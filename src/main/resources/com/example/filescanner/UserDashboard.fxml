@@ -57,7 +57,7 @@
             <!-- SCAN BUTTONS + STATUS -->
             <HBox spacing="10">
                 <Button text="Scan" onAction="#onScan"/>
-                <Button text="Reset" onAction="#onReset"/>
+                <Button text="New box" onAction="#onReset"/>
             </HBox>
 
             <Label fx:id="statusLabel" text="Ready to scan..."

@@ -89,9 +89,6 @@
                                style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
                 </HBox>
 
-                <CheckBox fx:id="chkSplit" text="Split on barcode"
-                          style="-fx-text-fill: #cdd6f4;"/>
-
                 <Label text="Export format" style="-fx-text-fill: #cdd6f4;"/>
                 <ComboBox fx:id="comboFormat"
                           style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>

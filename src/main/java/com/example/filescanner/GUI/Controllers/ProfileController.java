@@ -27,18 +27,16 @@ public class ProfileController {
     @FXML private TableColumn<Profile, String> colFormat;
     @FXML private TableColumn<Profile, Float> colBrightness;
     @FXML private TableColumn<Profile, Float> colContrast;
-    @FXML private TableColumn<Profile, Boolean> colSplit;
 
     @FXML private TextField txtName, txtRotationValue, txtBrightnessValue, txtContrastValue;
     @FXML private Slider sliderRotation, sliderBrightness, sliderContrast;
-    @FXML private CheckBox chkSplit;
     @FXML private ComboBox<String> comboFormat;
     @FXML private ImageView imgPreview;
 
-    // ⭐ NEW: Search field
+    // ⭐ Search field
     @FXML private TextField searchField;
 
-    // ⭐ NEW: Filtered list for searching
+    // ⭐ Filtered list for searching
     private FilteredList<Profile> filteredProfiles;
 
     private final ProfileManager manager = new ProfileManager(new ProfileRepository());
@@ -52,7 +50,7 @@ public class ProfileController {
         setupTable();
         loadProfiles();
         setupBindings();
-        setupSearchFilter();   // ⭐ NEW
+        setupSearchFilter();
     }
 
     private void setupTable() {
@@ -61,7 +59,6 @@ public class ProfileController {
         colFormat.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getExportFormat()));
         colBrightness.setCellValueFactory(c -> new SimpleFloatProperty(c.getValue().getBrightness()).asObject());
         colContrast.setCellValueFactory(c -> new SimpleFloatProperty(c.getValue().getContrast()).asObject());
-        colSplit.setCellValueFactory(c -> new SimpleBooleanProperty(c.getValue().isSplitOnBarcode()).asObject());
 
         profileTable.getSelectionModel().selectedItemProperty().addListener((obs, old, p) -> {
             if (p != null) loadProfileIntoFields(p);
@@ -76,7 +73,6 @@ public class ProfileController {
         comboFormat.getItems().addAll("TIFF", "PNG", "JPG");
     }
 
-    // ⭐ UPDATED: Now uses FilteredList
     private void loadProfiles() {
         filteredProfiles = new FilteredList<>(
                 FXCollections.observableArrayList(manager.getAllProfiles()),
@@ -86,9 +82,8 @@ public class ProfileController {
         profileTable.setItems(filteredProfiles);
     }
 
-    // ⭐ NEW: Search logic
     private void setupSearchFilter() {
-        if (searchField == null) return; // safety if FXML missing
+        if (searchField == null) return;
 
         searchField.textProperty().addListener((obs, oldValue, newValue) -> {
             String filter = newValue.toLowerCase().trim();
@@ -100,8 +95,7 @@ public class ProfileController {
                         || String.valueOf(profile.getRotation()).contains(filter)
                         || profile.getExportFormat().toLowerCase().contains(filter)
                         || String.valueOf(profile.getBrightness()).contains(filter)
-                        || String.valueOf(profile.getContrast()).contains(filter)
-                        || String.valueOf(profile.isSplitOnBarcode()).toLowerCase().contains(filter);
+                        || String.valueOf(profile.getContrast()).contains(filter);
             });
         });
     }
@@ -112,14 +106,21 @@ public class ProfileController {
         sliderRotation.setValue(p.getRotation());
         sliderBrightness.setValue(p.getBrightness());
         sliderContrast.setValue(p.getContrast());
-        chkSplit.setSelected(p.isSplitOnBarcode());
         comboFormat.setValue(p.getExportFormat());
         updatePreview();
     }
 
     @FXML
     public void createProfile() {
-        Profile p = ProfileMapper.fromFields(txtName, sliderRotation, sliderBrightness, sliderContrast, chkSplit, comboFormat);
+        Profile p = new Profile(
+                txtName.getText(),
+                (int) sliderRotation.getValue(),
+                (float) sliderBrightness.getValue(),
+                (float) sliderContrast.getValue(),
+                true, // ✅ Always split on barcode
+                comboFormat.getValue()
+        );
+
         manager.createProfile(p);
         loadProfiles();
         clearFields();
@@ -129,7 +130,13 @@ public class ProfileController {
     public void saveProfile() {
         if (selected == null) return;
 
-        ProfileMapper.updateProfile(selected, txtName, sliderRotation, sliderBrightness, sliderContrast, chkSplit, comboFormat);
+        selected.setName(txtName.getText());
+        selected.setRotation((int) sliderRotation.getValue());
+        selected.setBrightness((float) sliderBrightness.getValue());
+        selected.setContrast((float) sliderContrast.getValue());
+        selected.setSplitOnBarcode(true); // ✅ Always true
+        selected.setExportFormat(comboFormat.getValue());
+
         manager.updateProfile(selected);
         loadProfiles();
     }
@@ -175,7 +182,7 @@ public class ProfileController {
                     (int) sliderRotation.getValue(),
                     (float) sliderBrightness.getValue(),
                     (float) sliderContrast.getValue(),
-                    chkSplit.isSelected(),
+                    true, // ✅ Always split on barcode
                     comboFormat.getValue()
             );
         }
@@ -187,7 +194,6 @@ public class ProfileController {
         sliderRotation.setValue(0);
         sliderBrightness.setValue(0);
         sliderContrast.setValue(1);
-        chkSplit.setSelected(false);
         comboFormat.setValue(null);
         imgPreview.setImage(null);
         selected = null;
