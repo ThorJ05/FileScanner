@@ -30,8 +30,6 @@ public class ScanManager {
 
     private int sessionScanCount = 0;
     private int totalFileCount = 0;
-
-    // Reference counter til rækkefølge
     private int scanCounter = 0;
 
     // ---------------------------------------------------
@@ -39,7 +37,7 @@ public class ScanManager {
     // ---------------------------------------------------
     public ScanManager(int userId) throws Exception {
         currentBox = boxRepo.getOrCreateBox(userId);
-        currentDocument = null;
+        currentDocument = null; // GUI sætter den rigtige senere
     }
 
     // ---------------------------------------------------
@@ -48,47 +46,37 @@ public class ScanManager {
     public List<ScannedFile> scanNext() throws Exception {
         List<ScannedFile> result = new ArrayList<>();
 
-        // Fetch TIFF
         BufferedImage img = api.fetchRandomTiff();
         String barcode = barcodeService.readBarcode(img);
 
         sessionScanCount++;
         totalFileCount++;
 
-        // Create new document if barcode found
+        // Split ONLY when barcode is found
         if (barcode != null) {
             int newDocId = docRepo.createDocument(currentBox.getId(), barcode);
             currentDocument = new Document(newDocId, currentBox.getId(), barcode);
             currentBox.addDocument(currentDocument);
         }
 
-        // If no document yet → create default
+        // If no document exists yet (first scan in new box)
         if (currentDocument == null) {
             String safeBarcode = (barcode == null ? "NO_BARCODE" : barcode);
-
             int newDocId = docRepo.createDocument(currentBox.getId(), safeBarcode);
             currentDocument = new Document(newDocId, currentBox.getId(), safeBarcode);
             currentBox.addDocument(currentDocument);
         }
 
-        // Page number
         int pageNumber = currentDocument.getPages().size() + 1;
 
-        // Save TIFF to disk
         String filePath = fileRepo.saveTiff(img, currentDocument.getId(), pageNumber);
 
-        // ---------------------------------------------------
-        // REFERENCE ID + IMAGE BYTES
-        // ---------------------------------------------------
         int referenceId = ++scanCounter;
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(img, "tiff", baos);
         byte[] imageBytes = baos.toByteArray();
 
-        // ---------------------------------------------------
-        // SAVE PAGE METADATA IN DB
-        // ---------------------------------------------------
         pageRepo.createPage(
                 currentDocument.getId(),
                 pageNumber,
@@ -97,9 +85,6 @@ public class ScanManager {
                 imageBytes
         );
 
-        // ---------------------------------------------------
-        // CREATE SCANNEDFILE OBJECT
-        // ---------------------------------------------------
         ScannedFile scanned = new ScannedFile("Page " + pageNumber, img, barcode, filePath);
         scanned.setReferenceId(referenceId);
 
@@ -110,26 +95,29 @@ public class ScanManager {
     }
 
     // ---------------------------------------------------
-    // GETTERS
+    // RESET → NEW BOX
     // ---------------------------------------------------
-    public int getTotalFileCount() { return totalFileCount; }
-
-    public int getSessionScanCount() { return sessionScanCount; }
-
-    public Box getCurrentBox() { return currentBox; }
-
-    public Document getCurrentDocument() { return currentDocument; }
-
-    public List<Document> getAllDocuments() { return currentBox.getDocuments(); }
-
-    // ---------------------------------------------------
-    // RESET
-    // ---------------------------------------------------
-    public void reset() {
-        currentBox.clearDocuments();
+    public void reset(int userId) throws Exception {
+        currentBox = boxRepo.createNewBox(userId);
         currentDocument = null;
         sessionScanCount = 0;
         totalFileCount = 0;
         scanCounter = 0;
+    }
+
+    // ---------------------------------------------------
+    // GETTERS
+    // ---------------------------------------------------
+    public Box getCurrentBox() { return currentBox; }
+
+    public List<Document> getAllDocuments() { return currentBox.getDocuments(); }
+
+    public int getTotalFileCount() { return totalFileCount; }
+
+    public int getSessionScanCount() { return sessionScanCount; }
+
+    // ⭐ VIGTIG: GUI skal kalde denne efter loadExistingDocuments()
+    public void setCurrentDocument(Document doc) {
+        this.currentDocument = doc;
     }
 }

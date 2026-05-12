@@ -102,7 +102,13 @@ public class UserDashboardController {
             pages.forEach(d::addPage);
             box.addDocument(d);
         }
+
+        // ⭐ VIGTIGT: Fortæl ScanManager hvilket dokument der er aktivt
+        if (!docs.isEmpty()) {
+            scanManager.setCurrentDocument(docs.get(docs.size() - 1));
+        }
     }
+
 
     private void updateDocumentListView() {
         documentListView.getItems().clear();
@@ -219,15 +225,18 @@ public class UserDashboardController {
 
     @FXML
     private void onReset() {
-        scanManager.reset();
-        documentListView.getItems().clear();
-        pageListView.getItems().clear();
-        pageTable.getItems().clear();
-        imagePreview.setImage(null);
-        loadStats();
-        statusLabel.setText("Session reset.");
-        rotationSlider.setValue(0);
+        try {
+            scanManager.reset(Integer.parseInt(SceneController.getCurrentUser().getId()));
+            loadExistingDocuments();
+            updateDocumentListView();
+            pageTable.getItems().clear();
+            imagePreview.setImage(null);
+            statusLabel.setText("New box created.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
     private void loadUserInfo(User user) {
         welcomeLabel.setText("Welcome back, " + user.getUsername());
