@@ -272,11 +272,18 @@ public class UserDashboardController {
     private void onReset() {
         try {
             scanManager.reset(Integer.parseInt(SceneController.getCurrentUser().getId()));
-            loadExistingDocuments();
-            updateDocumentListView();
+
+            // GUI reset
+            documentListView.getItems().clear();
             pageTable.getItems().clear();
             imagePreview.setImage(null);
+
+            docCountLabel.setText("0");
+            fileCountLabel.setText("0");
+            sessionCountLabel.setText("Scanned this session: 0");
+
             statusLabel.setText("New box created.");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
