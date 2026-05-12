@@ -97,6 +97,26 @@
 
             </HBox>
 
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Rotation:" style="-fx-text-fill: #cdd6f4;"/>
+
+                <Slider fx:id="rotationSlider"
+                        min="0" max="360"
+                        value="0"
+                        blockIncrement="1"
+                        showTickLabels="true"
+                        showTickMarks="true"
+                        majorTickUnit="90"
+                        minorTickCount="5"
+                        style="-fx-padding: 10;"/>
+
+                <TextField fx:id="rotationField"
+                           promptText="0–360"
+                           prefWidth="60"
+                           style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;"/>
+            </HBox>
+
+
         </VBox>
     </center>
 

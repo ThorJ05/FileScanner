@@ -11,6 +11,8 @@ import com.example.filescanner.DAL.PageRepository;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 
 import java.util.List;
@@ -25,6 +27,10 @@ public class UserDashboardController {
     @FXML private Label welcomeLabel, docCountLabel, fileCountLabel, activeProfileLabel, statusLabel, sessionCountLabel;
     @FXML private ImageView imagePreview;
     @FXML private ListView<String> documentListView, pageListView;
+
+    // ⭐ Rotation controls
+    @FXML private Slider rotationSlider;
+    @FXML private TextField rotationField;
 
     public void initialize() {
         User user = SceneController.getCurrentUser();
@@ -43,6 +49,40 @@ public class UserDashboardController {
             updateDocumentListView();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        setupRotationControls();
+    }
+
+    // ⭐ Rotation logic (slider + text field)
+    private void setupRotationControls() {
+
+        // Slider → rotates image + updates text field
+        rotationSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double angle = newVal.doubleValue();
+            imagePreview.setRotate(angle);
+            rotationField.setText(String.valueOf((int) angle));
+        });
+
+        // Text field → rotates image + updates slider
+        rotationField.setOnAction(e -> applyTextRotation());
+
+        // Apply rotation when leaving the field
+        rotationField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) applyTextRotation();
+        });
+    }
+
+    private void applyTextRotation() {
+        try {
+            double angle = Double.parseDouble(rotationField.getText());
+            if (angle < 0 || angle > 360) return;
+
+            imagePreview.setRotate(angle);
+            rotationSlider.setValue(angle);
+
+        } catch (NumberFormatException ignored) {
+            // Ignore invalid input
         }
     }
 
@@ -98,6 +138,9 @@ public class UserDashboardController {
 
             ScannedFile page = scanManager.getAllDocuments().get(docIndex).getPages().get(pageIndex);
             imagePreview.setImage(imageService.toFxImage(page.getImage()));
+
+            // Reset rotation when switching pages
+            rotationSlider.setValue(0);
         });
     }
 
@@ -115,6 +158,9 @@ public class UserDashboardController {
             statusLabel.setText(last.hasBarcode() ? "BARCODE: " + last.getBarcode() : "Scanned");
 
             updateDocumentListView();
+
+            rotationSlider.setValue(0);
+
         } catch (Exception e) {
             statusLabel.setText("Error scanning.");
             e.printStackTrace();
@@ -175,6 +221,7 @@ public class UserDashboardController {
         imagePreview.setImage(null);
         loadStats();
         statusLabel.setText("Session reset.");
+        rotationSlider.setValue(0);
     }
 
     private void loadUserInfo(User user) {
@@ -194,10 +241,10 @@ public class UserDashboardController {
         SceneController.clearHistory();
         SceneController.switchTo("Login.fxml");
     }
+
     @FXML
     private void onDashboard() {
         loadUserInfo(SceneController.getCurrentUser());
         loadStats();
     }
-
 }
