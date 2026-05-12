@@ -4,6 +4,7 @@ import com.example.filescanner.BEE.User;
 import com.example.filescanner.BEE.UserRole;
 import com.example.filescanner.BLL.UserManager;
 import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -23,8 +24,12 @@ public class AdminDashboardController {
     @FXML private Button createUserButton;
     @FXML private AnchorPane contentArea;
 
+    // ⭐ NEW: Search field
+    @FXML private TextField searchUserField;
+
     private final UserManager userManager = new UserManager();
     private List<User> currentUsers;
+    private FilteredList<User> filteredUsers;
 
     @FXML
     private void openProfiles() {
@@ -79,15 +84,40 @@ public class AdminDashboardController {
         });
     }
 
+    // ⭐ UPDATED: Load users with filtering support
     private void loadUsers() {
         currentUsers = userManager.getAllUsers();
         userCountLabel.setText(String.valueOf(currentUsers.size()));
 
+        filteredUsers = new FilteredList<>(FXCollections.observableArrayList(currentUsers), p -> true);
         userListView.setItems(FXCollections.observableArrayList(
-                currentUsers.stream()
+                filteredUsers.stream()
                         .map(u -> u.getUsername() + " (" + u.getRole() + ")")
                         .toList()
         ));
+
+        setupSearchFilter();
+    }
+
+    // ⭐ NEW: Search logic
+    private void setupSearchFilter() {
+        if (searchUserField == null) return;
+
+        searchUserField.textProperty().addListener((obs, oldValue, newValue) -> {
+            String filter = newValue.toLowerCase().trim();
+
+            filteredUsers.setPredicate(user -> {
+                if (filter.isEmpty()) return true;
+                return user.getUsername().toLowerCase().contains(filter)
+                        || user.getRole().toString().toLowerCase().contains(filter);
+            });
+
+            userListView.setItems(FXCollections.observableArrayList(
+                    filteredUsers.stream()
+                            .map(u -> u.getUsername() + " (" + u.getRole() + ")")
+                            .toList()
+            ));
+        });
     }
 
     @FXML
