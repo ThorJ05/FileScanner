@@ -8,6 +8,7 @@ import com.example.filescanner.BLL.ImageService;
 import com.example.filescanner.BLL.ScanManager;
 import com.example.filescanner.DAL.DocumentRepository;
 import com.example.filescanner.DAL.PageRepository;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -191,25 +192,36 @@ public class UserDashboardController {
 
     @FXML
     private void onScan() {
-        try {
-            List<ScannedFile> newFiles = scanManager.scanNext();
-            if (newFiles.isEmpty()) return;
+        statusLabel.setText("Scanning...");
 
-            ScannedFile last = newFiles.get(newFiles.size() - 1);
-            imagePreview.setImage(imageService.toFxImage(last.getImage()));
+        Task<ScannedFile> task = new Task<>() {
+            @Override
+            protected ScannedFile call() throws Exception {
+                return scanManager.scanNextAsync(); // NY metode
+            }
+        };
 
-            fileCountLabel.setText(String.valueOf(scanManager.getTotalFileCount()));
-            sessionCountLabel.setText("Scanned this session: " + scanManager.getSessionScanCount());
-            statusLabel.setText(last.hasBarcode() ? "BARCODE: " + last.getBarcode() : "Scanned");
+        task.setOnSucceeded(e -> {
+            ScannedFile scanned = task.getValue();
 
+            // Vis billedet i GUI med det samme
+            imagePreview.setImage(imageService.toFxImage(scanned.getImage()));
+
+            // Opdater GUI
             updateDocumentListView();
             rotationSlider.setValue(0);
 
-        } catch (Exception e) {
-            statusLabel.setText("Error scanning.");
-            e.printStackTrace();
-        }
+            statusLabel.setText("Scanned");
+        });
+
+        task.setOnFailed(e -> {
+            statusLabel.setText("Scan failed");
+            task.getException().printStackTrace();
+        });
+
+        new Thread(task).start();
     }
+
 
     // PAGE REORDERING
     @FXML

@@ -10,7 +10,6 @@ import com.example.filescanner.DAL.FileRepository;
 import com.example.filescanner.DAL.PageRepository;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ScanManager {
@@ -35,69 +34,97 @@ public class ScanManager {
     // ---------------------------------------------------
     public ScanManager(int userId) throws Exception {
         currentBox = boxRepo.getOrCreateBox(userId);
-        currentDocument = null; // GUI sætter den rigtige senere
+        currentDocument = null;
     }
 
     // ---------------------------------------------------
-    // MAIN SCAN METHOD (OPTIMERET)
+    // MAIN ASYNC-FRIENDLY SCAN METHOD
     // ---------------------------------------------------
-    public List<ScannedFile> scanNext() throws Exception {
-        List<ScannedFile> result = new ArrayList<>();
+    public ScannedFile scanNextAsync() throws Exception {
 
-        // 1. Fetch TIFF
-        BufferedImage img = api.fetchRandomTiff();
+        BufferedImage img = safeFetchTiff();
         String barcode = barcodeService.readBarcode(img);
 
         sessionScanCount++;
         totalFileCount++;
 
-        // 2. Create new document if barcode found
-        if (barcode != null) {
-            int newDocId = docRepo.createDocument(currentBox.getId(), barcode);
-            currentDocument = new Document(newDocId, currentBox.getId(), barcode);
-            currentBox.addDocument(currentDocument);
-        }
-
-        // 3. If no document exists yet (first scan)
-        if (currentDocument == null) {
-            String safeBarcode = (barcode == null ? "NO_BARCODE" : barcode);
-            int newDocId = docRepo.createDocument(currentBox.getId(), safeBarcode);
-            currentDocument = new Document(newDocId, currentBox.getId(), safeBarcode);
-            currentBox.addDocument(currentDocument);
-        }
+        ensureCurrentDocument(barcode);
 
         int pageNumber = currentDocument.getPages().size() + 1;
 
-        // 4. Save TIFF to disk
-        String filePath = fileRepo.saveTiff(img, currentDocument.getId(), pageNumber);
-
-        // 5. Read TIFF bytes directly from disk (FAST)
-        byte[] imageBytes = fileRepo.readBytes(filePath);
-
-        int referenceId = ++scanCounter;
-
-        // 6. Save page metadata + image bytes
-        pageRepo.createPage(
-                currentDocument.getId(),
-                pageNumber,
-                filePath,
-                referenceId,
-                imageBytes
-        );
-
-        // 7. Create ScannedFile WITHOUT image (lazy loading)
-        ScannedFile scanned = new ScannedFile("Page " + pageNumber, img, barcode, filePath);
-
-        scanned.setReferenceId(referenceId);
-
+        // GUI needs the image immediately
+        ScannedFile scanned = new ScannedFile("Page " + pageNumber, img, barcode, null);
         currentDocument.addPage(scanned);
-        result.add(scanned);
 
-        return result;
+        savePageAsync(img, pageNumber, scanned);
+
+        return scanned;
     }
 
     // ---------------------------------------------------
-    // RESET → NEW BOX
+    // SAFE TIFF FETCH (RETRY)
+    // ---------------------------------------------------
+    private BufferedImage safeFetchTiff() throws Exception {
+        for (int i = 0; i < 3; i++) {
+            try {
+                return api.fetchRandomTiff();
+            } catch (Exception e) {
+                System.out.println("Retry TIFF fetch (" + (i + 1) + "/3)");
+                Thread.sleep(150);
+            }
+        }
+        throw new Exception("Failed to fetch TIFF after 3 attempts");
+    }
+
+    // ---------------------------------------------------
+    // DOCUMENT CREATION LOGIC
+    // ---------------------------------------------------
+    private void ensureCurrentDocument(String barcode) throws Exception {
+
+        if (barcode != null) {
+            int id = docRepo.createDocument(currentBox.getId(), barcode);
+            currentDocument = new Document(id, currentBox.getId(), barcode);
+            currentBox.addDocument(currentDocument);
+            return;
+        }
+
+        if (currentDocument == null) {
+            String safe = (barcode == null ? "NO_BARCODE" : barcode);
+            int id = docRepo.createDocument(currentBox.getId(), safe);
+            currentDocument = new Document(id, currentBox.getId(), safe);
+            currentBox.addDocument(currentDocument);
+        }
+    }
+
+    // ---------------------------------------------------
+    // BACKGROUND SAVE
+    // ---------------------------------------------------
+    private void savePageAsync(BufferedImage img, int pageNumber, ScannedFile scanned) {
+        new Thread(() -> {
+            try {
+                String filePath = fileRepo.saveTiff(img, currentDocument.getId(), pageNumber);
+                byte[] bytes = fileRepo.readBytes(filePath);
+
+                int refId = ++scanCounter;
+
+                pageRepo.createPage(
+                        currentDocument.getId(),
+                        pageNumber,
+                        filePath,
+                        refId,
+                        bytes
+                );
+
+                scanned.setReferenceId(refId);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    // ---------------------------------------------------
+    // RESET
     // ---------------------------------------------------
     public void reset(int userId) throws Exception {
         currentBox = boxRepo.createNewBox(userId);
