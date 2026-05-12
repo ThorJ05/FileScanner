@@ -9,6 +9,7 @@ public class ScannedFile {
     private final String barcode;
     private final String filePath;
 
+    private int referenceId;   // ← NYT
     private int rotation = 0;
 
     public ScannedFile(String label, BufferedImage image, String barcode, String filePath) {
@@ -27,10 +28,10 @@ public class ScannedFile {
         return barcode != null;
     }
 
-    // ✅ ADD THESE BACK
     public int getRotation() { return rotation; }
+    public void setRotation(int rotation) { this.rotation = rotation; }
 
-    public void setRotation(int rotation) {
-        this.rotation = rotation;
-    }
+    // ⭐ Reference ID
+    public int getReferenceId() { return referenceId; }
+    public void setReferenceId(int referenceId) { this.referenceId = referenceId; }
 }

@@ -19,15 +19,36 @@ public class PageRepository {
         ImageIO.scanForPlugins();
     }
 
-    public void createPage(int documentId, int pageNumber, String filePath) {
-        System.out.println("Page saved: document=" + documentId + " page=" + pageNumber);
+    // -----------------------------
+    // CREATE PAGE (med reference_id)
+    // -----------------------------
+    public void createPage(int documentId, int pageNumber, String filePath, int referenceId, byte[] imageBytes) throws Exception {
+
+        String sql = "INSERT INTO dbo.Page (DocumentId, PageNumber, FilePath, reference_id, Image) " +
+                "VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, documentId);
+            stmt.setInt(2, pageNumber);
+            stmt.setString(3, filePath);
+            stmt.setInt(4, referenceId);
+            stmt.setBytes(5, imageBytes);
+
+            stmt.executeUpdate();
+        }
     }
 
+    // -----------------------------
+    // LOAD PAGES (med reference_id)
+    // -----------------------------
     public List<ScannedFile> getPagesByDocumentId(int documentId) throws Exception {
 
         List<ScannedFile> pages = new ArrayList<>();
 
-        String sql = "SELECT PageNumber, Image FROM dbo.Page WHERE DocumentId = ? ORDER BY PageNumber";
+        String sql = "SELECT PageNumber, Image, reference_id, FilePath " +
+                "FROM dbo.Page WHERE DocumentId = ? ORDER BY reference_id";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -38,6 +59,8 @@ public class PageRepository {
             while (rs.next()) {
 
                 int pageNumber = rs.getInt("PageNumber");
+                int referenceId = rs.getInt("reference_id");
+                String filePath = rs.getString("FilePath");
                 byte[] imageBytes = rs.getBytes("Image");
 
                 if (imageBytes == null) continue;
@@ -45,40 +68,43 @@ public class PageRepository {
                 BufferedImage img = decodeTiff(imageBytes);
                 if (img == null) continue;
 
-                String ref = "db://document/" + documentId + "/page/" + pageNumber;
-
-                pages.add(new ScannedFile(
+                ScannedFile sf = new ScannedFile(
                         "Page " + pageNumber,
                         img,
                         null,
-                        ref
-                ));
+                        filePath
+                );
+
+                sf.setReferenceId(referenceId);
+
+                pages.add(sf);
             }
         }
 
         return pages;
     }
 
+    // -----------------------------
+    // UPDATE PAGE NUMBER
+    // -----------------------------
     public void updatePageNumber(int documentId, int newPageNumber, String filePath) throws Exception {
 
-        String sql = "UPDATE dbo.Page SET PageNumber = ? " +
-                "WHERE DocumentId = ? AND PageNumber = ?";
+        String sql = "UPDATE dbo.Page SET PageNumber = ? WHERE DocumentId = ? AND FilePath = ?";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, newPageNumber);
             stmt.setInt(2, documentId);
-
-            String[] parts = filePath.split("/");
-            int oldPageNumber = Integer.parseInt(parts[parts.length - 1]);
-
-            stmt.setInt(3, oldPageNumber);
+            stmt.setString(3, filePath);
 
             stmt.executeUpdate();
         }
     }
 
+    // -----------------------------
+    // TIFF DECODER
+    // -----------------------------
     private BufferedImage decodeTiff(byte[] bytes) {
         try {
             Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("tiff");
@@ -101,4 +127,5 @@ public class PageRepository {
             return null;
         }
     }
+
 }

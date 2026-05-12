@@ -9,10 +9,8 @@ import com.example.filescanner.BLL.ScanManager;
 import com.example.filescanner.DAL.DocumentRepository;
 import com.example.filescanner.DAL.PageRepository;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 
 import java.util.List;
@@ -28,7 +26,13 @@ public class UserDashboardController {
     @FXML private ImageView imagePreview;
     @FXML private ListView<String> documentListView, pageListView;
 
-    // ⭐ Rotation controls
+    //  NEW: TableView for pages
+    @FXML private TableView<ScannedFile> pageTable;
+    @FXML private TableColumn<ScannedFile, Integer> colReferenceId;
+    @FXML private TableColumn<ScannedFile, String> colLabel;
+    @FXML private TableColumn<ScannedFile, String> colBarcode;
+
+    //  Rotation controls
     @FXML private Slider rotationSlider;
     @FXML private TextField rotationField;
 
@@ -52,22 +56,27 @@ public class UserDashboardController {
         }
 
         setupRotationControls();
+        setupTableColumns();
     }
 
-    // ⭐ Rotation logic (slider + text field)
+    // Bind TableView columns
+    private void setupTableColumns() {
+        colReferenceId.setCellValueFactory(new PropertyValueFactory<>("referenceId"));
+        colLabel.setCellValueFactory(new PropertyValueFactory<>("label"));
+        colBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
+    }
+
+    //  Rotation logic
     private void setupRotationControls() {
 
-        // Slider → rotates image + updates text field
         rotationSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             double angle = newVal.doubleValue();
             imagePreview.setRotate(angle);
             rotationField.setText(String.valueOf((int) angle));
         });
 
-        // Text field → rotates image + updates slider
         rotationField.setOnAction(e -> applyTextRotation());
 
-        // Apply rotation when leaving the field
         rotationField.focusedProperty().addListener((obs, oldVal, newVal) -> {
             if (!newVal) applyTextRotation();
         });
@@ -81,9 +90,7 @@ public class UserDashboardController {
             imagePreview.setRotate(angle);
             rotationSlider.setValue(angle);
 
-        } catch (NumberFormatException ignored) {
-            // Ignore invalid input
-        }
+        } catch (NumberFormatException ignored) {}
     }
 
     private void loadExistingDocuments() throws Exception {
@@ -121,9 +128,13 @@ public class UserDashboardController {
 
         Document doc = scanManager.getAllDocuments().get(docIndex);
 
+        // Old ListView
         for (int i = 0; i < doc.getPages().size(); i++) {
             pageListView.getItems().add("Page " + (i + 1));
         }
+
+        //NEW: Update TableView
+        pageTable.getItems().setAll(doc.getPages());
     }
 
     private void setupDocumentClick() {
@@ -131,15 +142,10 @@ public class UserDashboardController {
     }
 
     private void setupPageClick() {
-        pageListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            int docIndex = documentListView.getSelectionModel().getSelectedIndex();
-            int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
-            if (docIndex < 0 || pageIndex < 0) return;
+        pageTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null) return;
 
-            ScannedFile page = scanManager.getAllDocuments().get(docIndex).getPages().get(pageIndex);
-            imagePreview.setImage(imageService.toFxImage(page.getImage()));
-
-            // Reset rotation when switching pages
+            imagePreview.setImage(imageService.toFxImage(newVal.getImage()));
             rotationSlider.setValue(0);
         });
     }
@@ -158,7 +164,6 @@ public class UserDashboardController {
             statusLabel.setText(last.hasBarcode() ? "BARCODE: " + last.getBarcode() : "Scanned");
 
             updateDocumentListView();
-
             rotationSlider.setValue(0);
 
         } catch (Exception e) {
@@ -168,11 +173,10 @@ public class UserDashboardController {
     }
 
     // PAGE REORDERING
-
     @FXML
     private void onMovePageUp() {
         int docIndex = documentListView.getSelectionModel().getSelectedIndex();
-        int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
+        int pageIndex = pageTable.getSelectionModel().getSelectedIndex();
         if (docIndex < 0 || pageIndex <= 0) return;
 
         Document doc = scanManager.getAllDocuments().get(docIndex);
@@ -182,13 +186,13 @@ public class UserDashboardController {
 
         savePageOrderToDatabase(doc);
         updatePageList();
-        pageListView.getSelectionModel().select(pageIndex - 1);
+        pageTable.getSelectionModel().select(pageIndex - 1);
     }
 
     @FXML
     private void onMovePageDown() {
         int docIndex = documentListView.getSelectionModel().getSelectedIndex();
-        int pageIndex = pageListView.getSelectionModel().getSelectedIndex();
+        int pageIndex = pageTable.getSelectionModel().getSelectedIndex();
         if (docIndex < 0) return;
 
         Document doc = scanManager.getAllDocuments().get(docIndex);
@@ -199,7 +203,7 @@ public class UserDashboardController {
 
         savePageOrderToDatabase(doc);
         updatePageList();
-        pageListView.getSelectionModel().select(pageIndex + 1);
+        pageTable.getSelectionModel().select(pageIndex + 1);
     }
 
     private void savePageOrderToDatabase(Document doc) {
@@ -218,6 +222,7 @@ public class UserDashboardController {
         scanManager.reset();
         documentListView.getItems().clear();
         pageListView.getItems().clear();
+        pageTable.getItems().clear();
         imagePreview.setImage(null);
         loadStats();
         statusLabel.setText("Session reset.");

@@ -9,7 +9,9 @@ import com.example.filescanner.DAL.DocumentRepository;
 import com.example.filescanner.DAL.FileRepository;
 import com.example.filescanner.DAL.PageRepository;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,13 +31,20 @@ public class ScanManager {
     private int sessionScanCount = 0;
     private int totalFileCount = 0;
 
-    //  CONSTRUCTOR
+    // Reference counter til rækkefølge
+    private int scanCounter = 0;
+
+    // ---------------------------------------------------
+    // CONSTRUCTOR
+    // ---------------------------------------------------
     public ScanManager(int userId) throws Exception {
         currentBox = boxRepo.getOrCreateBox(userId);
         currentDocument = null;
     }
 
-    //  MAIN SCAN METHOD
+    // ---------------------------------------------------
+    // MAIN SCAN METHOD
+    // ---------------------------------------------------
     public List<ScannedFile> scanNext() throws Exception {
         List<ScannedFile> result = new ArrayList<>();
 
@@ -65,21 +74,44 @@ public class ScanManager {
         // Page number
         int pageNumber = currentDocument.getPages().size() + 1;
 
-        // Save to DB
+        // Save TIFF to disk
         String filePath = fileRepo.saveTiff(img, currentDocument.getId(), pageNumber);
 
-        // Metadata (optional)
-        pageRepo.createPage(currentDocument.getId(), pageNumber, filePath);
+        // ---------------------------------------------------
+        // REFERENCE ID + IMAGE BYTES
+        // ---------------------------------------------------
+        int referenceId = ++scanCounter;
 
-        // Create object
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "tiff", baos);
+        byte[] imageBytes = baos.toByteArray();
+
+        // ---------------------------------------------------
+        // SAVE PAGE METADATA IN DB
+        // ---------------------------------------------------
+        pageRepo.createPage(
+                currentDocument.getId(),
+                pageNumber,
+                filePath,
+                referenceId,
+                imageBytes
+        );
+
+        // ---------------------------------------------------
+        // CREATE SCANNEDFILE OBJECT
+        // ---------------------------------------------------
         ScannedFile scanned = new ScannedFile("Page " + pageNumber, img, barcode, filePath);
-        currentDocument.addPage(scanned);
+        scanned.setReferenceId(referenceId);
 
+        currentDocument.addPage(scanned);
         result.add(scanned);
+
         return result;
     }
 
+    // ---------------------------------------------------
     // GETTERS
+    // ---------------------------------------------------
     public int getTotalFileCount() { return totalFileCount; }
 
     public int getSessionScanCount() { return sessionScanCount; }
@@ -90,11 +122,14 @@ public class ScanManager {
 
     public List<Document> getAllDocuments() { return currentBox.getDocuments(); }
 
+    // ---------------------------------------------------
     // RESET
+    // ---------------------------------------------------
     public void reset() {
         currentBox.clearDocuments();
         currentDocument = null;
         sessionScanCount = 0;
         totalFileCount = 0;
+        scanCounter = 0;
     }
 }

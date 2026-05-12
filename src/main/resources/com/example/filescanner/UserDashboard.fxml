@@ -68,6 +68,13 @@
 
             <!-- DOCUMENT + PAGE + PREVIEW -->
             <HBox spacing="30">
+                <TableView fx:id="pageTable">
+                    <columns>
+                        <TableColumn fx:id="colReferenceId" text="Ref ID" prefWidth="80"/>
+                        <TableColumn fx:id="colLabel" text="Label" prefWidth="120"/>
+                        <TableColumn fx:id="colBarcode" text="Barcode" prefWidth="120"/>
+                    </columns>
+                </TableView>
 
                 <!-- DOCUMENT LIST -->
                 <VBox spacing="10">
