@@ -98,16 +98,15 @@ public class UserDashboardController {
         List<Document> docs = docRepo.getDocumentsByBoxId(box.getId());
 
         for (Document d : docs) {
-            List<ScannedFile> pages = pageRepo.getPagesByDocumentId(d.getId());
-            pages.forEach(d::addPage);
+            d.setPagesLoaded(false);
             box.addDocument(d);
         }
 
-        // ⭐ VIGTIGT: Fortæl ScanManager hvilket dokument der er aktivt
         if (!docs.isEmpty()) {
             scanManager.setCurrentDocument(docs.get(docs.size() - 1));
         }
     }
+
 
 
     private void updateDocumentListView() {
@@ -144,17 +143,51 @@ public class UserDashboardController {
     }
 
     private void setupDocumentClick() {
-        documentListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> updatePageList());
+        documentListView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+
+            int docIndex = documentListView.getSelectionModel().getSelectedIndex();
+            if (docIndex < 0) return;
+
+            Document doc = scanManager.getAllDocuments().get(docIndex);
+
+
+            if (!doc.isPagesLoaded()) {
+                try {
+                    List<ScannedFile> pages = pageRepo.getPagesByDocumentId(doc.getId());
+                    pages.forEach(doc::addPage);
+                    doc.setPagesLoaded(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            updatePageList();
+        });
     }
+
 
     private void setupPageClick() {
         pageTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null) return;
 
-            imagePreview.setImage(imageService.toFxImage(newVal.getImage()));
-            rotationSlider.setValue(0);
+            try {
+                //
+                if (newVal.getImage() == null) {
+                    byte[] bytes = pageRepo.getImageBytes(newVal.getPageId());
+                    if (bytes != null) {
+                        newVal.setImage(imageService.decodeImage(bytes));
+                    }
+                }
+
+                imagePreview.setImage(imageService.toFxImage(newVal.getImage()));
+                rotationSlider.setValue(0);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
+
 
     @FXML
     private void onScan() {

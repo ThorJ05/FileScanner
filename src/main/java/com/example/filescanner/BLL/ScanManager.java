@@ -9,9 +9,7 @@ import com.example.filescanner.DAL.DocumentRepository;
 import com.example.filescanner.DAL.FileRepository;
 import com.example.filescanner.DAL.PageRepository;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,25 +39,26 @@ public class ScanManager {
     }
 
     // ---------------------------------------------------
-    // MAIN SCAN METHOD
+    // MAIN SCAN METHOD (OPTIMERET)
     // ---------------------------------------------------
     public List<ScannedFile> scanNext() throws Exception {
         List<ScannedFile> result = new ArrayList<>();
 
+        // 1. Fetch TIFF
         BufferedImage img = api.fetchRandomTiff();
         String barcode = barcodeService.readBarcode(img);
 
         sessionScanCount++;
         totalFileCount++;
 
-        // Split ONLY when barcode is found
+        // 2. Create new document if barcode found
         if (barcode != null) {
             int newDocId = docRepo.createDocument(currentBox.getId(), barcode);
             currentDocument = new Document(newDocId, currentBox.getId(), barcode);
             currentBox.addDocument(currentDocument);
         }
 
-        // If no document exists yet (first scan in new box)
+        // 3. If no document exists yet (first scan)
         if (currentDocument == null) {
             String safeBarcode = (barcode == null ? "NO_BARCODE" : barcode);
             int newDocId = docRepo.createDocument(currentBox.getId(), safeBarcode);
@@ -69,14 +68,15 @@ public class ScanManager {
 
         int pageNumber = currentDocument.getPages().size() + 1;
 
+        // 4. Save TIFF to disk
         String filePath = fileRepo.saveTiff(img, currentDocument.getId(), pageNumber);
+
+        // 5. Read TIFF bytes directly from disk (FAST)
+        byte[] imageBytes = fileRepo.readBytes(filePath);
 
         int referenceId = ++scanCounter;
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(img, "tiff", baos);
-        byte[] imageBytes = baos.toByteArray();
-
+        // 6. Save page metadata + image bytes
         pageRepo.createPage(
                 currentDocument.getId(),
                 pageNumber,
@@ -85,7 +85,9 @@ public class ScanManager {
                 imageBytes
         );
 
+        // 7. Create ScannedFile WITHOUT image (lazy loading)
         ScannedFile scanned = new ScannedFile("Page " + pageNumber, img, barcode, filePath);
+
         scanned.setReferenceId(referenceId);
 
         currentDocument.addPage(scanned);
@@ -116,7 +118,6 @@ public class ScanManager {
 
     public int getSessionScanCount() { return sessionScanCount; }
 
-    // ⭐ VIGTIG: GUI skal kalde denne efter loadExistingDocuments()
     public void setCurrentDocument(Document doc) {
         this.currentDocument = doc;
     }

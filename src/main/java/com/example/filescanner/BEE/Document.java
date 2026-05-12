@@ -10,6 +10,9 @@ public class Document {
     private String barcode;
     private List<ScannedFile> pages = new ArrayList<>();
 
+    // LAZY LOADING FLAG
+    private boolean pagesLoaded = false;
+
     public Document(int id, int boxId, String barcode) {
         this.id = id;
         this.boxId = boxId;
@@ -34,5 +37,14 @@ public class Document {
 
     public void addPage(ScannedFile page) {
         pages.add(page);
+    }
+
+    // LAZY LOADING GET/SET
+    public boolean isPagesLoaded() {
+        return pagesLoaded;
+    }
+
+    public void setPagesLoaded(boolean pagesLoaded) {
+        this.pagesLoaded = pagesLoaded;
     }
 }

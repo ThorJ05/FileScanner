@@ -5,11 +5,12 @@ import java.awt.image.BufferedImage;
 public class ScannedFile {
 
     private final String label;
-    private final BufferedImage image;
+    private BufferedImage image;   // ← IKKE final, så vi kan lazy-loade
     private final String barcode;
     private final String filePath;
 
-    private int referenceId;   // ← NYT
+    private int pageId;            // ← VIGTIGT FOR LAZY LOADING
+    private int referenceId;
     private int rotation = 0;
 
     public ScannedFile(String label, BufferedImage image, String barcode, String filePath) {
@@ -21,6 +22,8 @@ public class ScannedFile {
 
     public String getLabel() { return label; }
     public BufferedImage getImage() { return image; }
+    public void setImage(BufferedImage image) { this.image = image; }  // ← LAZY LOADING
+
     public String getBarcode() { return barcode; }
     public String getFilePath() { return filePath; }
 
@@ -31,7 +34,10 @@ public class ScannedFile {
     public int getRotation() { return rotation; }
     public void setRotation(int rotation) { this.rotation = rotation; }
 
-    // ⭐ Reference ID
     public int getReferenceId() { return referenceId; }
     public void setReferenceId(int referenceId) { this.referenceId = referenceId; }
+
+    // ⭐ PageId (LAZY LOADING)
+    public int getPageId() { return pageId; }
+    public void setPageId(int pageId) { this.pageId = pageId; }
 }

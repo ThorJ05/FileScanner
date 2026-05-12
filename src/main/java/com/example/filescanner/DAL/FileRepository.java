@@ -2,32 +2,39 @@ package com.example.filescanner.DAL;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class FileRepository {
 
+    // -----------------------------------------
+    // SAVE TIFF TO DISK (FAST)
+    // -----------------------------------------
     public String saveTiff(BufferedImage img, int documentId, int pageNumber) throws Exception {
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(img, "TIFF", baos);
-        byte[] imageBytes = baos.toByteArray();
+        String dir = "data/documents/" + documentId;
+        new File(dir).mkdirs();
 
-        String sql = "INSERT INTO dbo.Page (DocumentId, PageNumber, FilePath, Image) " +
-                "VALUES (?, ?, ?, ?)";
+        String filePath = dir + "/page_" + pageNumber + ".tiff";
 
-        try (Connection conn = DBConnector.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        ImageIO.write(img, "TIFF", new File(filePath));
 
-            stmt.setInt(1, documentId);
-            stmt.setInt(2, pageNumber);
-            stmt.setString(3, "db://document/" + documentId + "/page/" + pageNumber);
-            stmt.setBytes(4, imageBytes);
+        return filePath;
+    }
 
-            stmt.executeUpdate();
+    // -----------------------------------------
+    // READ TIFF BYTES FROM DISK (FAST)
+    // -----------------------------------------
+    public byte[] readBytes(String filePath) throws IOException {
+
+        File file = new File(filePath);
+        byte[] bytes = new byte[(int) file.length()];
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            fis.read(bytes);
         }
 
-        return "db://document/" + documentId + "/page/" + pageNumber;
+        return bytes;
     }
 }

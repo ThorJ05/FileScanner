@@ -3,8 +3,10 @@ package com.example.filescanner.BLL;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 
 public class ImageService {
 
@@ -26,4 +28,9 @@ public class ImageService {
 
         return rotated;
     }
+
+    public BufferedImage decodeImage(byte[] bytes) throws Exception {
+        return ImageIO.read(new ByteArrayInputStream(bytes));
+    }
+
 }
