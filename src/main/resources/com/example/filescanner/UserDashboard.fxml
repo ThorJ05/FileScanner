@@ -89,11 +89,11 @@
                 </VBox>
 
                 <!-- IMAGE PREVIEW -->
-                <VBox spacing="10" style="-fx-translate-x: 140;">
+                <VBox spacing="10" style="-fx-translate-x: 80;">
                     <Label text="Preview" style="-fx-text-fill: #cdd6f4; -fx-font-size: 16px;"/>
                     <ImageView fx:id="imagePreview"
-                               fitWidth="450"
-                               fitHeight="450"
+                               fitWidth="400"
+                               fitHeight="400"
                                preserveRatio="true"
                                style="-fx-border-color: #cdd6f4;"/>
                 </VBox>
