@@ -29,17 +29,13 @@ public class ScanManager {
     private int totalFileCount = 0;
     private int scanCounter = 0;
 
-    // ---------------------------------------------------
     // CONSTRUCTOR
-    // ---------------------------------------------------
     public ScanManager(int userId) throws Exception {
         currentBox = boxRepo.getOrCreateBox(userId);
         currentDocument = null;
     }
 
-    // ---------------------------------------------------
     // MAIN ASYNC-FRIENDLY SCAN METHOD
-    // ---------------------------------------------------
     public ScannedFile scanNextAsync() throws Exception {
 
         BufferedImage img = safeFetchTiff();
@@ -61,9 +57,7 @@ public class ScanManager {
         return scanned;
     }
 
-    // ---------------------------------------------------
     // SAFE TIFF FETCH (RETRY)
-    // ---------------------------------------------------
     private BufferedImage safeFetchTiff() throws Exception {
         for (int i = 0; i < 3; i++) {
             try {
@@ -76,9 +70,7 @@ public class ScanManager {
         throw new Exception("Failed to fetch TIFF after 3 attempts");
     }
 
-    // ---------------------------------------------------
     // DOCUMENT CREATION LOGIC
-    // ---------------------------------------------------
     private void ensureCurrentDocument(String barcode) throws Exception {
 
         if (barcode != null) {
@@ -96,9 +88,7 @@ public class ScanManager {
         }
     }
 
-    // ---------------------------------------------------
     // BACKGROUND SAVE
-    // ---------------------------------------------------
     private void savePageAsync(BufferedImage img, int pageNumber, ScannedFile scanned) {
         new Thread(() -> {
             try {
@@ -123,9 +113,7 @@ public class ScanManager {
         }).start();
     }
 
-    // ---------------------------------------------------
     // RESET
-    // ---------------------------------------------------
     public void reset(int userId) throws Exception {
         currentBox = boxRepo.createNewBox(userId);
         currentDocument = null;
@@ -134,9 +122,7 @@ public class ScanManager {
         scanCounter = 0;
     }
 
-    // ---------------------------------------------------
     // GETTERS
-    // ---------------------------------------------------
     public Box getCurrentBox() { return currentBox; }
 
     public List<Document> getAllDocuments() { return currentBox.getDocuments(); }
