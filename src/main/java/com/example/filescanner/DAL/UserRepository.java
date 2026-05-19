@@ -59,7 +59,20 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public void deleteUser(String userId) {
-        String sql = "DELETE FROM Users WHERE UserId = ?";
+        String sql = "UPDATE Users SET IsDeleted = 1 WHERE UserId = ?";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, userId);
+            stmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void restoreUser(String userId) {
+        String sql = "UPDATE Users SET IsDeleted = 0 WHERE UserId = ?";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -72,10 +85,12 @@ public class UserRepository implements IUserRepository {
         }
     }
 
+
+
     @Override
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users";
+        String sql = "SELECT * FROM Users WHERE IsDeleted = 0";
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -98,6 +113,29 @@ public class UserRepository implements IUserRepository {
         return list;
     }
 
+    public List<User> getDeletedUsers() {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE IsDeleted = 1";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new BasicUser(
+                        String.valueOf(rs.getInt("UserId")),
+                        rs.getString("UserName"),
+                        rs.getString("PasswordHash"),
+                        UserRole.valueOf(rs.getString("Role"))
+                ));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 
 
     @Override

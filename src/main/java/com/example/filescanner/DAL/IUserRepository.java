@@ -18,4 +18,6 @@ public interface IUserRepository {
     boolean emailExists(String email);
 
     void updatePassword(String userId, String hashedPassword);
+
+    List<User> getDeletedUsers();
 }

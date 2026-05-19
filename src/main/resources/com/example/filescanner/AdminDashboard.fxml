@@ -63,7 +63,7 @@
                                       -fx-font-weight: bold;"/>
                     </HBox>
 
-                    <!-- ⭐ NEW: User Search Bar -->
+                    <!-- User Search Bar -->
                     <HBox spacing="10" alignment="CENTER_LEFT">
                         <Label text="Search:"
                                style="-fx-text-fill: #cdd6f4; -fx-font-size: 13px;"/>
@@ -76,8 +76,18 @@
                                           -fx-padding: 8;"/>
                     </HBox>
 
-                    <!-- User List -->
-                    <ListView fx:id="userListView" prefHeight="400"
+                    <!-- Active User List -->
+                    <ListView fx:id="userListView" prefHeight="300"
+                              style="-fx-background-color: #313244;
+                                     -fx-background-radius: 8;
+                                     -fx-border-color: #45475a;
+                                     -fx-border-radius: 8;"/>
+
+                    <Label text="Deleted Users"
+                           style="-fx-font-size: 14px; -fx-text-fill: #f38ba8;"/>
+
+                    <!-- Deleted Users List -->
+                    <ListView fx:id="deletedUsersListView" prefHeight="150"
                               style="-fx-background-color: #313244;
                                      -fx-background-radius: 8;
                                      -fx-border-color: #45475a;

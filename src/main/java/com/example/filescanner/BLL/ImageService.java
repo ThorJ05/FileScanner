@@ -14,7 +14,7 @@ public class ImageService {
         return SwingFXUtils.toFXImage(img, null);
     }
 
-    // ✅ Added rotation helper
+    // Added rotation helper
     public BufferedImage applyRotation(BufferedImage img, double degrees) {
         double radians = Math.toRadians(degrees);
         int w = img.getWidth();

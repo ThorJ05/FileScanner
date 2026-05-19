@@ -5,6 +5,7 @@ import com.example.filescanner.BEE.User;
 import com.example.filescanner.BEE.UserRole;
 import com.example.filescanner.Util.PasswordUtil;
 
+
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +28,9 @@ public class UserManager {
         );
 
         repo.createUser(user);
+    }
+    public List<User> getDeletedUsers() {
+        return repo.getDeletedUsers();
     }
 
     public void deleteUser(String id) {

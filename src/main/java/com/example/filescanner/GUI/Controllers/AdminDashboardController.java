@@ -17,14 +17,13 @@ public class AdminDashboardController {
 
     @FXML private Label userCountLabel;
     @FXML private ListView<String> userListView;
+    @FXML private ListView<String> deletedUsersListView;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private ComboBox<String> roleComboBox;
     @FXML private Label statusLabel;
     @FXML private Button createUserButton;
     @FXML private AnchorPane contentArea;
-
-    // ⭐ NEW: Search field
     @FXML private TextField searchUserField;
 
     private final UserManager userManager = new UserManager();
@@ -32,20 +31,12 @@ public class AdminDashboardController {
     private FilteredList<User> filteredUsers;
 
     @FXML
-    private void openProfiles() {
-        SceneController.switchTo("profiles.fxml");
-    }
-
-    @FXML
-    private void openClients() {
-        SceneController.switchTo("clients.fxml");
-    }
-
-    @FXML
     public void initialize() {
         roleComboBox.getItems().addAll("USER", "ADMIN");
         roleComboBox.getSelectionModel().selectFirst();
+
         loadUsers();
+        loadDeletedUsers();
 
         userListView.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -84,22 +75,25 @@ public class AdminDashboardController {
         });
     }
 
-    // ⭐ UPDATED: Load users with filtering support
+    // ⭐ Load active users
     private void loadUsers() {
         currentUsers = userManager.getAllUsers();
         userCountLabel.setText(String.valueOf(currentUsers.size()));
 
         filteredUsers = new FilteredList<>(FXCollections.observableArrayList(currentUsers), p -> true);
+
+        refreshListView();
+        setupSearchFilter();
+    }
+
+    private void refreshListView() {
         userListView.setItems(FXCollections.observableArrayList(
                 filteredUsers.stream()
                         .map(u -> u.getUsername() + " (" + u.getRole() + ")")
                         .toList()
         ));
-
-        setupSearchFilter();
     }
 
-    // ⭐ NEW: Search logic
     private void setupSearchFilter() {
         if (searchUserField == null) return;
 
@@ -112,11 +106,7 @@ public class AdminDashboardController {
                         || user.getRole().toString().toLowerCase().contains(filter);
             });
 
-            userListView.setItems(FXCollections.observableArrayList(
-                    filteredUsers.stream()
-                            .map(u -> u.getUsername() + " (" + u.getRole() + ")")
-                            .toList()
-            ));
+            refreshListView();
         });
     }
 
@@ -138,6 +128,7 @@ public class AdminDashboardController {
         statusLabel.setText("User created: " + username);
         clearFields();
         loadUsers();
+        loadDeletedUsers();
     }
 
     @FXML
@@ -148,17 +139,30 @@ public class AdminDashboardController {
             return;
         }
 
-        User selectedUser = currentUsers.get(selectedIndex);
-        userManager.deleteUser(selectedUser.getId());
+        User selectedUser = filteredUsers.get(selectedIndex);
 
-        statusLabel.setText("User deleted successfully.");
+        userManager.deleteUser(selectedUser.getId()); // Soft delete
+
+        statusLabel.setText("User soft-deleted.");
         loadUsers();
+        loadDeletedUsers();
     }
 
     private void clearFields() {
         usernameField.clear();
         passwordField.clear();
         roleComboBox.getSelectionModel().selectFirst();
+    }
+
+    // ⭐ Load deleted users (IsDeleted = 1)
+    private void loadDeletedUsers() {
+        List<User> deleted = userManager.getDeletedUsers();
+
+        deletedUsersListView.setItems(FXCollections.observableArrayList(
+                deleted.stream()
+                        .map(u -> u.getUsername() + " (" + u.getRole() + ")")
+                        .toList()
+        ));
     }
 
     @FXML
@@ -175,4 +179,15 @@ public class AdminDashboardController {
         SceneController.clearHistory();
         SceneController.switchTo("Login.fxml");
     }
+
+    @FXML
+    private void openProfiles() {
+        SceneController.switchTo("profiles.fxml");
+    }
+
+    @FXML
+    private void openClients() {
+        SceneController.switchTo("clients.fxml");
+    }
+
 }

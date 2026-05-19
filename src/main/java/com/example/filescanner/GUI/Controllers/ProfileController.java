@@ -33,10 +33,10 @@ public class ProfileController {
     @FXML private ComboBox<String> comboFormat;
     @FXML private ImageView imgPreview;
 
-    // ⭐ Search field
+    // Search field
     @FXML private TextField searchField;
 
-    // ⭐ Filtered list for searching
+    // Filtered list for searching
     private FilteredList<Profile> filteredProfiles;
 
     private final ProfileManager manager = new ProfileManager(new ProfileRepository());
@@ -117,7 +117,7 @@ public class ProfileController {
                 (int) sliderRotation.getValue(),
                 (float) sliderBrightness.getValue(),
                 (float) sliderContrast.getValue(),
-                true, // ✅ Always split on barcode
+                true, //  Always split on barcode
                 comboFormat.getValue()
         );
 
@@ -134,7 +134,7 @@ public class ProfileController {
         selected.setRotation((int) sliderRotation.getValue());
         selected.setBrightness((float) sliderBrightness.getValue());
         selected.setContrast((float) sliderContrast.getValue());
-        selected.setSplitOnBarcode(true); // ✅ Always true
+        selected.setSplitOnBarcode(true); //  Always true
         selected.setExportFormat(comboFormat.getValue());
 
         manager.updateProfile(selected);
@@ -182,7 +182,7 @@ public class ProfileController {
                     (int) sliderRotation.getValue(),
                     (float) sliderBrightness.getValue(),
                     (float) sliderContrast.getValue(),
-                    true, // ✅ Always split on barcode
+                    true, //  Always split on barcode
                     comboFormat.getValue()
             );
         }
