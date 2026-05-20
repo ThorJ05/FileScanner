@@ -37,6 +37,7 @@ public class AdminDashboardController {
 
         loadUsers();
         loadDeletedUsers();
+        setupDeletedUsersContextMenu();
 
         userListView.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -75,7 +76,6 @@ public class AdminDashboardController {
         });
     }
 
-    // ⭐ Load active users
     private void loadUsers() {
         currentUsers = userManager.getAllUsers();
         userCountLabel.setText(String.valueOf(currentUsers.size()));
@@ -141,7 +141,7 @@ public class AdminDashboardController {
 
         User selectedUser = filteredUsers.get(selectedIndex);
 
-        userManager.deleteUser(selectedUser.getId()); // Soft delete
+        userManager.deleteUser(selectedUser.getId());
 
         statusLabel.setText("User soft-deleted.");
         loadUsers();
@@ -154,7 +154,6 @@ public class AdminDashboardController {
         roleComboBox.getSelectionModel().selectFirst();
     }
 
-    // ⭐ Load deleted users (IsDeleted = 1)
     private void loadDeletedUsers() {
         List<User> deleted = userManager.getDeletedUsers();
 
@@ -163,6 +162,46 @@ public class AdminDashboardController {
                         .map(u -> u.getUsername() + " (" + u.getRole() + ")")
                         .toList()
         ));
+    }
+
+    private void setupDeletedUsersContextMenu() {
+        ContextMenu menu = new ContextMenu();
+
+        MenuItem restoreItem = new MenuItem("Restore User");
+        restoreItem.setOnAction(e -> onRestoreUser());
+
+        menu.getItems().add(restoreItem);
+
+        deletedUsersListView.setContextMenu(menu);
+    }
+
+    @FXML
+    private void onRestoreUser() {
+        int index = deletedUsersListView.getSelectionModel().getSelectedIndex();
+        if (index < 0) {
+            statusLabel.setText("Select a deleted user to restore.");
+            return;
+        }
+
+        List<User> deleted = userManager.getDeletedUsers();
+        User selected = deleted.get(index);
+
+        userManager.restoreUser(selected.getId());
+
+        statusLabel.setText("User restored: " + selected.getUsername());
+
+        loadUsers();
+        loadDeletedUsers();
+    }
+
+    @FXML
+    private void openProfiles() {
+        SceneController.switchTo("profiles.fxml");
+    }
+
+    @FXML
+    private void openClients() {
+        SceneController.switchTo("clients.fxml");
     }
 
     @FXML
@@ -179,15 +218,4 @@ public class AdminDashboardController {
         SceneController.clearHistory();
         SceneController.switchTo("Login.fxml");
     }
-
-    @FXML
-    private void openProfiles() {
-        SceneController.switchTo("profiles.fxml");
-    }
-
-    @FXML
-    private void openClients() {
-        SceneController.switchTo("clients.fxml");
-    }
-
 }

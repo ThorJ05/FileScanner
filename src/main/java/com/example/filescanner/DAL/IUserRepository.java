@@ -14,10 +14,11 @@ public interface IUserRepository {
 
     List<User> getAllUsers();
 
-    // Added for user management operations
     boolean emailExists(String email);
 
     void updatePassword(String userId, String hashedPassword);
 
     List<User> getDeletedUsers();
+
+    void restoreUser(String userId);
 }

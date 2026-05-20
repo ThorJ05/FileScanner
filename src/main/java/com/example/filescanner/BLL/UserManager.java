@@ -29,6 +29,10 @@ public class UserManager {
 
         repo.createUser(user);
     }
+    public void restoreUser(String id) {
+        repo.restoreUser(id);
+    }
+
     public List<User> getDeletedUsers() {
         return repo.getDeletedUsers();
     }
