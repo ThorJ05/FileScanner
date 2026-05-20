@@ -13,9 +13,14 @@ public class ClientManager {
         this.repo = repo;
     }
 
-
+    // ACTIVE clients
     public List<Client> getAllClients() {
-        return repo.getAll();
+        return repo.getAllActive();
+    }
+
+    // DELETED clients
+    public List<Client> getDeletedClients() {
+        return repo.getAllDeleted();
     }
 
     public Client getClientById(int id) {
@@ -32,11 +37,15 @@ public class ClientManager {
         return repo.update(client);
     }
 
+    // SOFT DELETE
     public boolean deleteClient(int id) {
-        return repo.delete(id);
+        return repo.softDelete(id);
     }
 
-
+    // RESTORE
+    public boolean restoreClient(int id) {
+        return repo.restore(id);
+    }
 
     private void validate(Client c) {
         if (c == null)
