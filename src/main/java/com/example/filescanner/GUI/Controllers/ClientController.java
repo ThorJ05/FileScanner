@@ -6,11 +6,14 @@ import com.example.filescanner.BLL.ClientManager;
 import com.example.filescanner.BLL.ProfileManager;
 import com.example.filescanner.DAL.ClientRepository;
 import com.example.filescanner.DAL.ProfileRepository;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClientController {
 
@@ -29,6 +32,8 @@ public class ClientController {
 
     private ClientManager clientManager;
     private ProfileManager profileManager;
+    private Map<Integer, List<Profile>> profileCache = new HashMap<>();
+
 
     @FXML
     public void initialize() {
@@ -49,14 +54,14 @@ public class ClientController {
 
         colAssignedProfiles.setCellValueFactory(cellData -> {
             Client client = cellData.getValue();
-            List<Profile> profiles = profileManager.getProfilesForClient(client.getId());
+            List<Profile> profiles = profileCache.getOrDefault(client.getId(), List.of());
 
-            StringBuilder names = new StringBuilder();
-            for (Profile p : profiles) {
-                if (!names.isEmpty()) names.append(", ");
-                names.append(p.getName());
-            }
-            return new javafx.beans.property.SimpleStringProperty(names.toString());
+            String names = profiles.stream()
+                    .map(Profile::getName)
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("");
+
+            return new SimpleStringProperty(names);
         });
 
         colDeletedId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -67,7 +72,9 @@ public class ClientController {
         loadClients();
         loadDeletedClients();
         loadProfiles();
+        loadProfileCache(); // ← NYT
     }
+
 
     private void loadClients() {
         tblClients.getItems().setAll(clientManager.getAllClients());
@@ -156,6 +163,16 @@ public class ClientController {
         alert.setContentText(msg);
         alert.showAndWait();
     }
+
+    private void loadProfileCache() {
+        profileCache.clear();
+
+        for (Client c : clientManager.getAllClients()) {
+            List<Profile> profiles = profileManager.getProfilesForClient(c.getId());
+            profileCache.put(c.getId(), profiles);
+        }
+    }
+
 
     @FXML
     private void onBack() {
