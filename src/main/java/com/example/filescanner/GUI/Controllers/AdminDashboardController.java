@@ -38,6 +38,9 @@ public class AdminDashboardController {
         loadUsers();
         loadDeletedUsers();
         setupDeletedUsersContextMenu();
+        setupActiveUsersContextMenu();
+        setupDeletedUsersContextMenu();
+
 
         userListView.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -51,7 +54,7 @@ public class AdminDashboardController {
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case ESCAPE -> onLogout();
-                case DELETE -> onDeleteUser();
+                case DELETE -> onSoftDeleteUser();
                 case DIGIT1 -> onDashboard();
             }
         });
@@ -132,21 +135,23 @@ public class AdminDashboardController {
     }
 
     @FXML
-    private void onDeleteUser() {
-        int selectedIndex = userListView.getSelectionModel().getSelectedIndex();
-        if (selectedIndex < 0) {
-            statusLabel.setText("Please select a user to delete.");
+    private void onSoftDeleteUser() {
+        int index = userListView.getSelectionModel().getSelectedIndex();
+        if (index < 0) {
+            statusLabel.setText("Select a user to delete.");
             return;
         }
 
-        User selectedUser = filteredUsers.get(selectedIndex);
+        User selectedUser = filteredUsers.get(index);
 
         userManager.deleteUser(selectedUser.getId());
 
         statusLabel.setText("User soft-deleted.");
+
         loadUsers();
         loadDeletedUsers();
     }
+
 
     private void clearFields() {
         usernameField.clear();
@@ -174,6 +179,17 @@ public class AdminDashboardController {
 
         deletedUsersListView.setContextMenu(menu);
     }
+    private void setupActiveUsersContextMenu() {
+        ContextMenu menu = new ContextMenu();
+
+        MenuItem deleteItem = new MenuItem("Soft Delete User");
+        deleteItem.setOnAction(e -> onSoftDeleteUser());
+
+        menu.getItems().add(deleteItem);
+
+        userListView.setContextMenu(menu);
+    }
+
 
     @FXML
     private void onRestoreUser() {
