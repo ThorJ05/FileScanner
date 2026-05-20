@@ -9,6 +9,49 @@ import java.util.Optional;
 
 public class ProfileRepository implements IProfileRepository {
 
+    // ACTIVE PROFILES
+    @Override
+    public List<Profile> getAllActive() {
+        List<Profile> list = new ArrayList<>();
+        String sql = "SELECT * FROM Profiles WHERE IsDeleted = 0";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    // DELETED PROFILES
+    @Override
+    public List<Profile> getAllDeleted() {
+        List<Profile> list = new ArrayList<>();
+        String sql = "SELECT * FROM Profiles WHERE IsDeleted = 1";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    // GET ALL (ACTIVE + DELETED)
     @Override
     public List<Profile> getAll() {
         List<Profile> list = new ArrayList<>();
@@ -29,6 +72,7 @@ public class ProfileRepository implements IProfileRepository {
         return list;
     }
 
+    // FIND BY ID
     @Override
     public Optional<Profile> findById(int id) {
         String sql = "SELECT * FROM Profiles WHERE ProfileId = ?";
@@ -50,11 +94,13 @@ public class ProfileRepository implements IProfileRepository {
         return Optional.empty();
     }
 
+    // INSERT
     @Override
     public boolean insert(Profile p) {
         String sql = """
-                INSERT INTO Profiles (Name, Rotation, Brightness, Contrast, SplitOnBarcode, ExportFormat)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO Profiles 
+                (Name, Rotation, Brightness, Contrast, AutoCrop, SplitOnBarcode, ExportFormat)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (Connection conn = DBConnector.getConnection();
@@ -64,8 +110,9 @@ public class ProfileRepository implements IProfileRepository {
             stmt.setInt(2, p.getRotation());
             stmt.setFloat(3, p.getBrightness());
             stmt.setFloat(4, p.getContrast());
-            stmt.setBoolean(5, p.isSplitOnBarcode());
-            stmt.setString(6, p.getExportFormat());
+            stmt.setBoolean(5, p.isAutoCrop());
+            stmt.setBoolean(6, p.isSplitOnBarcode());
+            stmt.setString(7, p.getExportFormat());
 
             return stmt.executeUpdate() > 0;
 
@@ -76,11 +123,13 @@ public class ProfileRepository implements IProfileRepository {
         return false;
     }
 
+    // UPDATE
     @Override
     public boolean update(Profile p) {
         String sql = """
                 UPDATE Profiles
-                SET Name = ?, Rotation = ?, Brightness = ?, Contrast = ?, SplitOnBarcode = ?, ExportFormat = ?
+                SET Name = ?, Rotation = ?, Brightness = ?, Contrast = ?, AutoCrop = ?, 
+                    SplitOnBarcode = ?, ExportFormat = ?
                 WHERE ProfileId = ?
                 """;
 
@@ -91,9 +140,10 @@ public class ProfileRepository implements IProfileRepository {
             stmt.setInt(2, p.getRotation());
             stmt.setFloat(3, p.getBrightness());
             stmt.setFloat(4, p.getContrast());
-            stmt.setBoolean(5, p.isSplitOnBarcode());
-            stmt.setString(6, p.getExportFormat());
-            stmt.setInt(7, p.getId());
+            stmt.setBoolean(5, p.isAutoCrop());
+            stmt.setBoolean(6, p.isSplitOnBarcode());
+            stmt.setString(7, p.getExportFormat());
+            stmt.setInt(8, p.getId());
 
             return stmt.executeUpdate() > 0;
 
@@ -104,6 +154,7 @@ public class ProfileRepository implements IProfileRepository {
         return false;
     }
 
+    // HARD DELETE (unused)
     @Override
     public boolean delete(int id) {
         String sql = "DELETE FROM Profiles WHERE ProfileId = ?";
@@ -121,8 +172,43 @@ public class ProfileRepository implements IProfileRepository {
         return false;
     }
 
+    // SOFT DELETE
+    @Override
+    public boolean softDelete(int id) {
+        String sql = "UPDATE Profiles SET IsDeleted = 1 WHERE ProfileId = ?";
 
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // RESTORE
+    @Override
+    public boolean restore(int id) {
+        String sql = "UPDATE Profiles SET IsDeleted = 0 WHERE ProfileId = ?";
+
+        try (Connection conn = DBConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // ASSIGN PROFILE TO CLIENT
     @Override
     public boolean assignProfileToClient(int clientId, int profileId) {
         String sql = "INSERT INTO ClientProfiles (ClientId, ProfileId) VALUES (?, ?)";
@@ -142,16 +228,17 @@ public class ProfileRepository implements IProfileRepository {
         return false;
     }
 
+    // GET PROFILES FOR CLIENT
     @Override
     public List<Profile> getProfilesForClient(int clientId) {
         List<Profile> list = new ArrayList<>();
 
         String sql = """
-        SELECT p.*
-        FROM Profiles p
-        JOIN ClientProfiles cp ON p.ProfileId = cp.ProfileId
-        WHERE cp.ClientId = ?
-        """;
+                SELECT p.*
+                FROM Profiles p
+                JOIN ClientProfiles cp ON p.ProfileId = cp.ProfileId
+                WHERE cp.ClientId = ?
+                """;
 
         try (Connection conn = DBConnector.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -170,12 +257,9 @@ public class ProfileRepository implements IProfileRepository {
         return list;
     }
 
-
-
-
-
+    // MAP RESULTSET → PROFILE OBJECT
     private Profile mapRow(ResultSet rs) throws SQLException {
-        return new Profile(
+        Profile p = new Profile(
                 rs.getInt("ProfileId"),
                 rs.getString("Name"),
                 rs.getInt("Rotation"),
@@ -184,5 +268,9 @@ public class ProfileRepository implements IProfileRepository {
                 rs.getBoolean("SplitOnBarcode"),
                 rs.getString("ExportFormat")
         );
+
+        p.setAutoCrop(rs.getBoolean("AutoCrop"));
+
+        return p;
     }
 }

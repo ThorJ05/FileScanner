@@ -2,201 +2,257 @@ package com.example.filescanner.GUI.Controllers;
 
 import com.example.filescanner.BEE.Profile;
 import com.example.filescanner.BLL.ProfileManager;
-import com.example.filescanner.BLL.ProfileMapper;
-import com.example.filescanner.BLL.PreviewService;
 import com.example.filescanner.DAL.ProfileRepository;
-import com.example.filescanner.Util.ImageLoader;
-import com.example.filescanner.GUI.helpers.SliderBinder;
-import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
 public class ProfileController {
 
-    @FXML private TableView<Profile> profileTable;
-    @FXML private TableColumn<Profile, String> colName;
-    @FXML private TableColumn<Profile, Integer> colRotation;
-    @FXML private TableColumn<Profile, String> colFormat;
-    @FXML private TableColumn<Profile, Float> colBrightness;
-    @FXML private TableColumn<Profile, Float> colContrast;
+    // TEXT FIELDS
+    @FXML private TextField txtName;
+    @FXML private TextField txtRotationValue;
+    @FXML private TextField txtBrightnessValue;
+    @FXML private TextField txtContrastValue;
 
-    @FXML private TextField txtName, txtRotationValue, txtBrightnessValue, txtContrastValue;
-    @FXML private Slider sliderRotation, sliderBrightness, sliderContrast;
+    // SLIDERS
+    @FXML private Slider sliderRotation;
+    @FXML private Slider sliderBrightness;
+    @FXML private Slider sliderContrast;
+
+    // COMBOBOX
     @FXML private ComboBox<String> comboFormat;
+
+    // CHECKBOXES
+    @FXML private CheckBox chkSplitOnBarcode;
+    @FXML private CheckBox chkAutoCrop;
+
+    // PREVIEW
     @FXML private ImageView imgPreview;
 
-    // Search field
-    @FXML private TextField searchField;
+    // ACTIVE TABLE
+    @FXML private TableView<Profile> tblProfiles;
+    @FXML private TableColumn<Profile, Integer> colId;
+    @FXML private TableColumn<Profile, String> colName;
 
-    // Filtered list for searching
-    private FilteredList<Profile> filteredProfiles;
+    // DELETED TABLE
+    @FXML private TableView<Profile> tblDeletedProfiles;
+    @FXML private TableColumn<Profile, Integer> colDeletedId;
+    @FXML private TableColumn<Profile, String> colDeletedName;
 
-    private final ProfileManager manager = new ProfileManager(new ProfileRepository());
-    private final PreviewService previewService = new PreviewService();
-
-    private BufferedImage sampleImage;
-    private Profile selected;
+    private ProfileManager profileManager;
+    private Profile selectedProfile;
+    private String currentPreviewPath;
 
     @FXML
     public void initialize() {
-        setupTable();
-        loadProfiles();
-        setupBindings();
-        setupSearchFilter();
+        profileManager = new ProfileManager(new ProfileRepository());
+        setupColumns();
+        setupSliders();
+        setupFormatCombo();
+        setupContextMenus();
+        loadAllData();
     }
 
-    private void setupTable() {
-        colName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getName()));
-        colRotation.setCellValueFactory(c -> new SimpleIntegerProperty(c.getValue().getRotation()).asObject());
-        colFormat.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getExportFormat()));
-        colBrightness.setCellValueFactory(c -> new SimpleFloatProperty(c.getValue().getBrightness()).asObject());
-        colContrast.setCellValueFactory(c -> new SimpleFloatProperty(c.getValue().getContrast()).asObject());
+    private void setupColumns() {
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        profileTable.getSelectionModel().selectedItemProperty().addListener((obs, old, p) -> {
-            if (p != null) loadProfileIntoFields(p);
+        colDeletedId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colDeletedName.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        tblProfiles.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            if (newV != null) loadProfileIntoEditor(newV);
         });
     }
 
-    private void setupBindings() {
-        SliderBinder.bind(sliderRotation, txtRotationValue, this::updatePreview, 0, 360);
-        SliderBinder.bind(sliderBrightness, txtBrightnessValue, this::updatePreview, -255, 255);
-        SliderBinder.bind(sliderContrast, txtContrastValue, this::updatePreview, 0.1, 100);
+    private void setupSliders() {
+        sliderRotation.valueProperty().addListener((obs, oldV, newV) -> {
+            txtRotationValue.setText(String.valueOf(newV.intValue()));
+            updatePreview();
+        });
 
+        sliderBrightness.valueProperty().addListener((obs, oldV, newV) -> {
+            txtBrightnessValue.setText(String.valueOf(newV.floatValue()));
+            updatePreview();
+        });
+
+        sliderContrast.valueProperty().addListener((obs, oldV, newV) -> {
+            txtContrastValue.setText(String.valueOf(newV.floatValue()));
+            updatePreview();
+        });
+    }
+
+    private void setupFormatCombo() {
         comboFormat.getItems().addAll("TIFF", "PNG", "JPG");
     }
 
-    private void loadProfiles() {
-        filteredProfiles = new FilteredList<>(
-                FXCollections.observableArrayList(manager.getAllProfiles()),
-                p -> true
-        );
-
-        profileTable.setItems(filteredProfiles);
+    private void loadAllData() {
+        tblProfiles.getItems().setAll(profileManager.getAllProfiles());
+        tblDeletedProfiles.getItems().setAll(profileManager.getDeletedProfiles());
     }
 
-    private void setupSearchFilter() {
-        if (searchField == null) return;
+    private void loadProfileIntoEditor(Profile p) {
+        selectedProfile = p;
 
-        searchField.textProperty().addListener((obs, oldValue, newValue) -> {
-            String filter = newValue.toLowerCase().trim();
-
-            filteredProfiles.setPredicate(profile -> {
-                if (filter.isEmpty()) return true;
-
-                return profile.getName().toLowerCase().contains(filter)
-                        || String.valueOf(profile.getRotation()).contains(filter)
-                        || profile.getExportFormat().toLowerCase().contains(filter)
-                        || String.valueOf(profile.getBrightness()).contains(filter)
-                        || String.valueOf(profile.getContrast()).contains(filter);
-            });
-        });
-    }
-
-    private void loadProfileIntoFields(Profile p) {
-        selected = p;
         txtName.setText(p.getName());
         sliderRotation.setValue(p.getRotation());
         sliderBrightness.setValue(p.getBrightness());
         sliderContrast.setValue(p.getContrast());
+
+        txtRotationValue.setText(String.valueOf(p.getRotation()));
+        txtBrightnessValue.setText(String.valueOf(p.getBrightness()));
+        txtContrastValue.setText(String.valueOf(p.getContrast()));
+
+        chkSplitOnBarcode.setSelected(p.isSplitOnBarcode());
+        chkAutoCrop.setSelected(p.isAutoCrop());
+
         comboFormat.setValue(p.getExportFormat());
-        updatePreview();
     }
 
     @FXML
-    public void createProfile() {
-        Profile p = new Profile(
-                txtName.getText(),
-                (int) sliderRotation.getValue(),
-                (float) sliderBrightness.getValue(),
-                (float) sliderContrast.getValue(),
-                true, //  Always split on barcode
-                comboFormat.getValue()
-        );
+    private void createProfile() {
+        try {
+            Profile p = new Profile(
+                    txtName.getText(),
+                    Integer.parseInt(txtRotationValue.getText()),
+                    Float.parseFloat(txtBrightnessValue.getText()),
+                    Float.parseFloat(txtContrastValue.getText()),
+                    chkSplitOnBarcode.isSelected(),
+                    comboFormat.getValue()
+            );
 
-        manager.createProfile(p);
-        loadProfiles();
-        clearFields();
+            p.setAutoCrop(chkAutoCrop.isSelected());
+
+            profileManager.createProfile(p);
+            loadAllData();
+            clearEditor();
+
+        } catch (Exception e) {
+            showError("Invalid profile settings: " + e.getMessage());
+        }
     }
 
     @FXML
-    public void saveProfile() {
-        if (selected == null) return;
+    private void saveProfile() {
+        if (selectedProfile == null) {
+            showError("No profile selected");
+            return;
+        }
 
-        selected.setName(txtName.getText());
-        selected.setRotation((int) sliderRotation.getValue());
-        selected.setBrightness((float) sliderBrightness.getValue());
-        selected.setContrast((float) sliderContrast.getValue());
-        selected.setSplitOnBarcode(true); //  Always true
-        selected.setExportFormat(comboFormat.getValue());
+        try {
+            selectedProfile.setName(txtName.getText());
+            selectedProfile.setRotation(Integer.parseInt(txtRotationValue.getText()));
+            selectedProfile.setBrightness(Float.parseFloat(txtBrightnessValue.getText()));
+            selectedProfile.setContrast(Float.parseFloat(txtContrastValue.getText()));
+            selectedProfile.setSplitOnBarcode(chkSplitOnBarcode.isSelected());
+            selectedProfile.setAutoCrop(chkAutoCrop.isSelected());
+            selectedProfile.setExportFormat(comboFormat.getValue());
 
-        manager.updateProfile(selected);
-        loadProfiles();
+            profileManager.updateProfile(selectedProfile);
+            loadAllData();
+
+        } catch (Exception e) {
+            showError("Invalid profile settings: " + e.getMessage());
+        }
     }
 
     @FXML
-    public void deleteProfile() {
-        if (selected == null) return;
+    private void deleteProfile() {
+        Profile p = tblProfiles.getSelectionModel().getSelectedItem();
+        if (p == null) return;
 
-        manager.deleteProfile(selected.getId());
-        loadProfiles();
-        clearFields();
+        profileManager.deleteProfile(p.getId());
+        loadAllData();
+        clearEditor();
     }
 
     @FXML
-    private void onBack() {
-        SceneController.goBack();
+    private void restoreProfile() {
+        Profile p = tblDeletedProfiles.getSelectionModel().getSelectedItem();
+        if (p == null) return;
+
+        profileManager.restoreProfile(p.getId());
+        loadAllData();
+    }
+
+    private void setupContextMenus() {
+        ContextMenu activeMenu = new ContextMenu();
+        MenuItem deleteItem = new MenuItem("Soft Delete");
+        deleteItem.setOnAction(e -> deleteProfile());
+        activeMenu.getItems().add(deleteItem);
+        tblProfiles.setContextMenu(activeMenu);
+
+        ContextMenu deletedMenu = new ContextMenu();
+        MenuItem restoreItem = new MenuItem("Restore");
+        restoreItem.setOnAction(e -> restoreProfile());
+        deletedMenu.getItems().add(restoreItem);
+        tblDeletedProfiles.setContextMenu(deletedMenu);
+    }
+
+    private void clearEditor() {
+        txtName.clear();
+        txtRotationValue.clear();
+        txtBrightnessValue.clear();
+        txtContrastValue.clear();
+        comboFormat.setValue(null);
+        chkSplitOnBarcode.setSelected(false);
+        chkAutoCrop.setSelected(false);
+        selectedProfile = null;
     }
 
     @FXML
-    private void loadSampleImage() throws IOException {
+    private void loadSampleImage() {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select sample image");
-
         chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("TIFF Files", "*.tif", "*.tiff")
+                new FileChooser.ExtensionFilter(
+                        "Image Files", "*.png", "*.jpg", "*.jpeg", "*.tif", "*.tiff"
+                )
         );
 
-        File f = chooser.showOpenDialog(null);
-        if (f != null) {
-            sampleImage = ImageLoader.loadTiff(f);
+        File file = chooser.showOpenDialog(null);
+
+        if (file != null) {
+            currentPreviewPath = file.getAbsolutePath();
             updatePreview();
         }
     }
 
     private void updatePreview() {
-        if (sampleImage == null) return;
+        if (currentPreviewPath == null) return;
 
-        Profile p = selected;
+        try {
+            Image img = new Image(new File(currentPreviewPath).toURI().toString());
 
-        if (p == null) {
-            p = new Profile(
-                    txtName.getText(),
-                    (int) sliderRotation.getValue(),
-                    (float) sliderBrightness.getValue(),
-                    (float) sliderContrast.getValue(),
-                    true, //  Always split on barcode
-                    comboFormat.getValue()
-            );
+            imgPreview.setRotate(sliderRotation.getValue());
+
+            javafx.scene.effect.ColorAdjust adjust = new javafx.scene.effect.ColorAdjust();
+            adjust.setBrightness(sliderBrightness.getValue());
+            adjust.setContrast(sliderContrast.getValue());
+
+            imgPreview.setEffect(adjust);
+            imgPreview.setImage(img);
+
+        } catch (Exception e) {
+            showError("Preview fejl: " + e.getMessage());
         }
-        imgPreview.setImage(previewService.generatePreview(sampleImage, p));
     }
 
-    private void clearFields() {
-        txtName.clear();
-        sliderRotation.setValue(0);
-        sliderBrightness.setValue(0);
-        sliderContrast.setValue(1);
-        comboFormat.setValue(null);
-        imgPreview.setImage(null);
-        selected = null;
-        sampleImage = null;
+    private void showError(String msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void onBack() {
+        SceneController.goBack();
     }
 }

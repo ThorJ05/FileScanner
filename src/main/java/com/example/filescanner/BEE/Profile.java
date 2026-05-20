@@ -5,13 +5,13 @@ public class Profile {
     private int id;
     private String name;
 
-    private int rotation;        // 0, 90, 180, 270
-    private float brightness;    // 1.0 = normal
-    private float contrast;      // 1.0 = normal
+    private int rotation;
+    private float brightness;
+    private float contrast;
     private boolean autoCrop;
     private boolean splitOnBarcode;
 
-    private String exportFormat; // "TIFF", "PNG", "JPG"
+    private String exportFormat;
 
     // Used by repository
     public Profile(int id, String name, int rotation, float brightness, float contrast,
@@ -36,8 +36,16 @@ public class Profile {
         this.exportFormat = exportFormat;
     }
 
+    // EMPTY
+    public Profile() {}
 
-    // GETTERS
+    // SIMPLE constructor (used by soft delete table)
+    public Profile(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    // GETTERS + SETTERS (unchanged)
     public int getId() { return id; }
     public String getName() { return name; }
     public int getRotation() { return rotation; }
@@ -47,7 +55,6 @@ public class Profile {
     public boolean isAutoCrop() { return autoCrop; }
     public String getExportFormat() { return exportFormat; }
 
-    // SETTERS
     public void setId(int id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setRotation(int rotation) { this.rotation = rotation; }
@@ -57,8 +64,8 @@ public class Profile {
     public void setAutoCrop(boolean autoCrop) { this.autoCrop = autoCrop; }
     public void setExportFormat(String exportFormat) { this.exportFormat = exportFormat; }
 
-   @Override
+    @Override
     public String toString() {
-        return name;}
-
+        return name;
+    }
 }

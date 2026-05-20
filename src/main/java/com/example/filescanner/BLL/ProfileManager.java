@@ -13,10 +13,14 @@ public class ProfileManager {
         this.repo = repo;
     }
 
-
-
+    // ACTIVE profiles
     public List<Profile> getAllProfiles() {
-        return repo.getAll();
+        return repo.getAllActive();
+    }
+
+    // DELETED profiles
+    public List<Profile> getDeletedProfiles() {
+        return repo.getAllDeleted();
     }
 
     public Profile getProfileById(int id) {
@@ -33,26 +37,17 @@ public class ProfileManager {
         return repo.update(profile);
     }
 
+    // SOFT DELETE
     public boolean deleteProfile(int id) {
-        return repo.delete(id);
+        return repo.softDelete(id);
     }
 
-
-    //  CLIENT <-> PROFILE RELATION
-
-
-    public boolean assignProfileToClient(int clientId, int profileId) {
-        return repo.assignProfileToClient(clientId, profileId);
+    // RESTORE
+    public boolean restoreProfile(int id) {
+        return repo.restore(id);
     }
 
-    public List<Profile> getProfilesForClient(int clientId) {
-        return repo.getProfilesForClient(clientId);
-    }
-
-
-    //  VALIDATION
-
-
+    // VALIDATION (FULL VERSION – matches your advanced model)
     private void validate(Profile p) {
         if (p == null)
             throw new IllegalArgumentException("Profile cannot be null");
@@ -66,7 +61,19 @@ public class ProfileManager {
         if (p.getBrightness() < -255 || p.getBrightness() > 255)
             throw new IllegalArgumentException("Brightness must be between -255 and 255");
 
-        if (p.getContrast() < 1f || p.getContrast() > 100f)
-            throw new IllegalArgumentException("Contrast must be between 1 and 100");
+        if (p.getContrast() < 0.1f || p.getContrast() > 100f)
+            throw new IllegalArgumentException("Contrast must be between 0.1 and 100");
+
+        if (p.getExportFormat() == null || p.getExportFormat().isBlank())
+            throw new IllegalArgumentException("Export format cannot be empty");
+    }
+
+    // CLIENT <-> PROFILE RELATION
+    public boolean assignProfileToClient(int clientId, int profileId) {
+        return repo.assignProfileToClient(clientId, profileId);
+    }
+
+    public List<Profile> getProfilesForClient(int clientId) {
+        return repo.getProfilesForClient(clientId);
     }
 }
