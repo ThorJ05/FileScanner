@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.List;
 
 public class ProfileController {
 
@@ -240,7 +241,7 @@ public class ProfileController {
             imgPreview.setImage(img);
 
         } catch (Exception e) {
-            showError("Preview fejl: " + e.getMessage());
+            showError("Preview error: " + e.getMessage());
         }
     }
 
@@ -254,5 +255,10 @@ public class ProfileController {
     @FXML
     private void onBack() {
         SceneController.goBack();
+    }
+
+    @FXML
+    private void openShortcuts() {
+        SceneController.switchTo("Shortcuts.fxml");
     }
 }

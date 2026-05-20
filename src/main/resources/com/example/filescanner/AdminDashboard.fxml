@@ -10,7 +10,7 @@
 
     <!-- Sidebar -->
     <left>
-        <VBox spacing="18" prefWidth="280"
+        <VBox fx:id="sidebar" spacing="18" prefWidth="280"
               style="-fx-background-color: #181825; -fx-padding: 28;">
 
             <Label text="FileScanner"
@@ -26,6 +26,11 @@
                     style="-fx-background-color: #313244; -fx-text-fill: #cdd6f4;
                            -fx-alignment: center-left; -fx-padding: 14;
                            -fx-background-radius: 8; -fx-cursor: hand;"/>
+
+            <Button text="Shortcuts"
+                    onAction="#openShortcuts"
+                    style="-fx-background-color: #45475a; -fx-text-fill: #cdd6f4;
+                           -fx-font-size: 14px; -fx-pref-width: 180;"/>
 
             <Region VBox.vgrow="ALWAYS"/>
 
@@ -92,7 +97,6 @@
                                      -fx-background-radius: 8;
                                      -fx-border-color: #45475a;
                                      -fx-border-radius: 8;"/>
-
 
                 </VBox>
 

@@ -51,12 +51,12 @@ public class ClientController {
             Client client = cellData.getValue();
             List<Profile> profiles = profileManager.getProfilesForClient(client.getId());
 
-            String names = "";
+            StringBuilder names = new StringBuilder();
             for (Profile p : profiles) {
-                if (!names.isEmpty()) names += ", ";
-                names += p.getName();
+                if (!names.isEmpty()) names.append(", ");
+                names.append(p.getName());
             }
-            return new javafx.beans.property.SimpleStringProperty(names);
+            return new javafx.beans.property.SimpleStringProperty(names.toString());
         });
 
         colDeletedId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -160,5 +160,10 @@ public class ClientController {
     @FXML
     private void onBack() {
         SceneController.goBack();
+    }
+
+    @FXML
+    private void openShortcuts() {
+        SceneController.switchTo("Shortcuts.fxml");
     }
 }

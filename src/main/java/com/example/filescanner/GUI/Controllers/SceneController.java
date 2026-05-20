@@ -1,6 +1,7 @@
 package com.example.filescanner.GUI.Controllers;
 
 import com.example.filescanner.BEE.User;
+import com.example.filescanner.GUI.KeyboardNavigationManager;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -49,7 +50,10 @@ public class SceneController {
             FXMLLoader loader = new FXMLLoader(resource);
             Parent root = loader.load();
 
-            mainStage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            KeyboardNavigationManager.enableGlobalArrowNavigation(scene);
+
+            mainStage.setScene(scene);
             mainStage.show();
 
             currentFxml = fxmlFile;

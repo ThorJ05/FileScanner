@@ -20,22 +20,7 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        setupArrowNavigation();
-    }
-
-    private void setupArrowNavigation() {
-        usernameField.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case DOWN, ENTER -> passwordField.requestFocus();
-            }
-        });
-
-        passwordField.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case UP -> usernameField.requestFocus();
-                case ENTER -> onLoginClick();
-            }
-        });
+        // No keyboard navigation here — SceneController handles it globally
     }
 
     @FXML
@@ -57,7 +42,6 @@ public class LoginController {
 
         User user = userOpt.get();
         SceneController.setCurrentUser(user);
-
 
         if (user.getRole() == UserRole.ADMIN) {
             SceneController.switchTo("AdminDashboard.fxml");

@@ -8,7 +8,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.List;
@@ -37,15 +36,13 @@ public class AdminDashboardController {
 
         loadUsers();
         loadDeletedUsers();
-        setupDeletedUsersContextMenu();
         setupActiveUsersContextMenu();
         setupDeletedUsersContextMenu();
 
-
+        // Only attach keyboard shortcuts — nothing else
         userListView.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 setupKeyboardShortcuts(newScene);
-                setupArrowNavigation();
             }
         });
     }
@@ -56,25 +53,6 @@ public class AdminDashboardController {
                 case ESCAPE -> onLogout();
                 case DELETE -> onSoftDeleteUser();
                 case DIGIT1 -> onDashboard();
-            }
-        });
-    }
-
-    private void setupArrowNavigation() {
-        usernameField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.DOWN) passwordField.requestFocus();
-        });
-
-        passwordField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.UP) usernameField.requestFocus();
-            else if (e.getCode() == KeyCode.DOWN) roleComboBox.requestFocus();
-        });
-
-        roleComboBox.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case ENTER -> roleComboBox.show();
-                case UP -> passwordField.requestFocus();
-                case DOWN -> createUserButton.requestFocus();
             }
         });
     }
@@ -152,7 +130,6 @@ public class AdminDashboardController {
         loadDeletedUsers();
     }
 
-
     private void clearFields() {
         usernameField.clear();
         passwordField.clear();
@@ -179,6 +156,7 @@ public class AdminDashboardController {
 
         deletedUsersListView.setContextMenu(menu);
     }
+
     private void setupActiveUsersContextMenu() {
         ContextMenu menu = new ContextMenu();
 
@@ -189,7 +167,6 @@ public class AdminDashboardController {
 
         userListView.setContextMenu(menu);
     }
-
 
     @FXML
     private void onRestoreUser() {
@@ -234,4 +211,10 @@ public class AdminDashboardController {
         SceneController.clearHistory();
         SceneController.switchTo("Login.fxml");
     }
+
+    @FXML
+    private void openShortcuts() {
+        SceneController.switchTo("Shortcuts.fxml");
+    }
+
 }

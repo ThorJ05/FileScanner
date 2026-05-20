@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.filescanner.GUI.Controllers.ShortcutsController"
+            styleClass="shortcuts-root">
+
+    <top>
+        <Label text="Keyboard Shortcuts" styleClass="shortcuts-title"/>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="shortcuts-scroll">
+            <VBox spacing="20" styleClass="shortcuts-container">
+
+                <TitledPane text="Global Shortcuts" expanded="true" styleClass="shortcuts-pane">
+                    <VBox spacing="8" styleClass="shortcuts-section">
+                        <Label text="↑ / ↓  — Navigate between elements" styleClass="shortcut-item"/>
+                        <Label text="ENTER — Activate focused button or field" styleClass="shortcut-item"/>
+                        <Label text="ESC — Go back" styleClass="shortcut-item"/>
+                    </VBox>
+                </TitledPane>
+
+                <TitledPane text="Admin Dashboard" expanded="false" styleClass="shortcuts-pane">
+                    <VBox spacing="8" styleClass="shortcuts-section">
+                        <Label text="DELETE — Soft delete selected user" styleClass="shortcut-item"/>
+                        <Label text="ESC — Logout" styleClass="shortcut-item"/>
+                    </VBox>
+                </TitledPane>
+
+
+                <TitledPane text="Login Screen" expanded="false" styleClass="shortcuts-pane">
+                    <VBox spacing="8" styleClass="shortcuts-section">
+                        <Label text="ENTER — Login" styleClass="shortcut-item"/>
+                        <Label text="↓ — Move to password field" styleClass="shortcut-item"/>
+                        <Label text="↑ — Move to username field" styleClass="shortcut-item"/>
+                    </VBox>
+                </TitledPane>
+
+                <TitledPane text="User Dashboard" expanded="false" styleClass="shortcuts-pane">
+                    <VBox spacing="8" styleClass="shortcuts-section">
+                        <Label text="ENTER — Activate selected action" styleClass="shortcut-item"/>
+                        <Label text="ESC — Go back" styleClass="shortcut-item"/>
+                        <Label text="↑ / ↓ — Navigate documents/pages" styleClass="shortcut-item"/>
+                    </VBox>
+                </TitledPane>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <Button text="Back" onAction="#onBack" styleClass="shortcuts-back"/>
+    </bottom>
+
+</BorderPane>

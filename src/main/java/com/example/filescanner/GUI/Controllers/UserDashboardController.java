@@ -27,13 +27,11 @@ public class UserDashboardController {
     @FXML private ImageView imagePreview;
     @FXML private ListView<String> documentListView, pageListView;
 
-    //  NEW: TableView for pages
     @FXML private TableView<ScannedFile> pageTable;
     @FXML private TableColumn<ScannedFile, Integer> colReferenceId;
     @FXML private TableColumn<ScannedFile, String> colLabel;
     @FXML private TableColumn<ScannedFile, String> colBarcode;
 
-    //  Rotation controls
     @FXML private Slider rotationSlider;
     @FXML private TextField rotationField;
 
@@ -60,14 +58,12 @@ public class UserDashboardController {
         setupTableColumns();
     }
 
-    // Bind TableView columns
     private void setupTableColumns() {
         colReferenceId.setCellValueFactory(new PropertyValueFactory<>("referenceId"));
         colLabel.setCellValueFactory(new PropertyValueFactory<>("label"));
         colBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
     }
 
-    //  Rotation logic
     private void setupRotationControls() {
 
         rotationSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
@@ -108,8 +104,6 @@ public class UserDashboardController {
         }
     }
 
-
-
     private void updateDocumentListView() {
         documentListView.getItems().clear();
 
@@ -134,12 +128,10 @@ public class UserDashboardController {
 
         Document doc = scanManager.getAllDocuments().get(docIndex);
 
-        // Old ListView
         for (int i = 0; i < doc.getPages().size(); i++) {
             pageListView.getItems().add("Page " + (i + 1));
         }
 
-        //NEW: Update TableView
         pageTable.getItems().setAll(doc.getPages());
     }
 
@@ -150,7 +142,6 @@ public class UserDashboardController {
             if (docIndex < 0) return;
 
             Document doc = scanManager.getAllDocuments().get(docIndex);
-
 
             if (!doc.isPagesLoaded()) {
                 try {
@@ -166,13 +157,11 @@ public class UserDashboardController {
         });
     }
 
-
     private void setupPageClick() {
         pageTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null) return;
 
             try {
-                //
                 if (newVal.getImage() == null) {
                     byte[] bytes = pageRepo.getImageBytes(newVal.getPageId());
                     if (bytes != null) {
@@ -189,7 +178,6 @@ public class UserDashboardController {
         });
     }
 
-
     @FXML
     private void onScan() {
         statusLabel.setText("Scanning...");
@@ -197,17 +185,15 @@ public class UserDashboardController {
         Task<ScannedFile> task = new Task<>() {
             @Override
             protected ScannedFile call() throws Exception {
-                return scanManager.scanNextAsync(); // NY metode
+                return scanManager.scanNextAsync();
             }
         };
 
         task.setOnSucceeded(e -> {
             ScannedFile scanned = task.getValue();
 
-            // Vis billedet i GUI med det samme
             imagePreview.setImage(imageService.toFxImage(scanned.getImage()));
 
-            // Opdater GUI
             updateDocumentListView();
             rotationSlider.setValue(0);
 
@@ -222,8 +208,6 @@ public class UserDashboardController {
         new Thread(task).start();
     }
 
-
-    // PAGE REORDERING
     @FXML
     private void onMovePageUp() {
         int docIndex = documentListView.getSelectionModel().getSelectedIndex();
@@ -273,7 +257,6 @@ public class UserDashboardController {
         try {
             scanManager.reset(Integer.parseInt(SceneController.getCurrentUser().getId()));
 
-            // GUI reset
             documentListView.getItems().clear();
             pageTable.getItems().clear();
             imagePreview.setImage(null);
@@ -288,7 +271,6 @@ public class UserDashboardController {
             e.printStackTrace();
         }
     }
-
 
     private void loadUserInfo(User user) {
         welcomeLabel.setText("Welcome back, " + user.getUsername());
@@ -313,4 +295,10 @@ public class UserDashboardController {
         loadUserInfo(SceneController.getCurrentUser());
         loadStats();
     }
+
+    @FXML
+    private void openShortcuts() {
+        SceneController.switchTo("Shortcuts.fxml");
+    }
+
 }

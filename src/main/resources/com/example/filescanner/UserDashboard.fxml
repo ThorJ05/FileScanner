@@ -12,11 +12,18 @@
 
     <!-- LEFT MENU -->
     <left>
-        <VBox spacing="4" prefWidth="200"
+        <VBox fx:id="sidebar" spacing="18" prefWidth="200"
               style="-fx-background-color: #181825; -fx-padding: 20;">
+
             <Label text="FileScanner"
                    style="-fx-font-size: 18px; -fx-font-weight: bold;
                           -fx-text-fill: #cdd6f4; -fx-padding: 0 0 20 0;"/>
+
+            <!-- Shortcuts button added to sidebar -->
+            <Button text="Shortcuts"
+                    onAction="#openShortcuts"
+                    style="-fx-background-color: #45475a; -fx-text-fill: #cdd6f4;
+                           -fx-font-size: 14px; -fx-pref-width: 180;"/>
 
             <Region VBox.vgrow="ALWAYS"/>
 
@@ -63,6 +70,8 @@
 
             <!-- DOCUMENT + PAGE + PREVIEW -->
             <HBox spacing="30">
+
+                <!-- PAGE TABLE -->
                 <TableView fx:id="pageTable">
                     <columns>
                         <TableColumn fx:id="colReferenceId" text="Ref ID" prefWidth="80"/>
@@ -77,10 +86,11 @@
                     <ListView fx:id="documentListView" prefWidth="150" prefHeight="400"/>
                 </VBox>
 
-                <HBox spacing="10">
+                <!-- PAGE MOVE BUTTONS -->
+                <VBox spacing="10" alignment="CENTER">
                     <Button text="Move Up" onAction="#onMovePageUp"/>
                     <Button text="Move Down" onAction="#onMovePageDown"/>
-                </HBox>
+                </VBox>
 
                 <!-- PAGE LIST -->
                 <VBox spacing="10">
@@ -100,6 +110,7 @@
 
             </HBox>
 
+            <!-- ROTATION CONTROLS -->
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <Label text="Rotation:" style="-fx-text-fill: #cdd6f4;"/>
 
